@@ -1,0 +1,132 @@
+{
+  "projectType": "frontend",
+  "projectName": "TailAdmin",
+  "projectDescription": "A free, open-source Next.js and Tailwind CSS admin dashboard template with 30+ components, data visualization, authentication pages, and UI elements for building feature-rich back-end and admin panel applications.",
+  "theme": "willow",
+  "primaryColor": "#141c2b",
+  "lightColor": "#4257e2",
+  "darkColor": "#9cacec",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Introduction",
+            "pages": ["introduction", "getting-started/installation", "getting-started/project-structure"]
+          },
+          {
+            "group": "Configuration",
+            "pages": ["getting-started/tailwind-config", "getting-started/dark-mode", "getting-started/typescript"]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "Layout",
+            "pages": ["components/sidebar", "components/header", "components/dashboard-layout"]
+          },
+          {
+            "group": "UI Elements",
+            "pages": [
+              "components/buttons",
+              "components/alerts",
+              "components/badges",
+              "components/modals",
+              "components/dropdowns",
+              "components/avatars",
+              "components/images",
+              "components/videos"
+            ]
+          },
+          {
+            "group": "Data Display",
+            "pages": ["components/tables", "components/charts-line", "components/charts-bar"]
+          },
+          {
+            "group": "Forms",
+            "pages": [
+              "components/form-elements",
+              "components/date-picker",
+              "components/multi-select",
+              "components/select"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Pages",
+        "groups": [
+          {
+            "group": "Dashboard",
+            "pages": ["pages/ecommerce-dashboard"]
+          },
+          {
+            "group": "Authentication",
+            "pages": ["pages/sign-in", "pages/sign-up"]
+          },
+          {
+            "group": "Other Pages",
+            "pages": ["pages/profile", "pages/calendar", "pages/blank-page", "pages/404"]
+          }
+        ]
+      },
+      {
+        "tab": "Customization",
+        "groups": [
+          {
+            "group": "Theming",
+            "pages": ["customization/colors", "customization/typography", "customization/layouts"]
+          },
+          {
+            "group": "Upgrade",
+            "pages": ["customization/pro-version", "customization/changelog"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Ecommerce dashboard with metrics, sales charts, and order tables",
+    "Dark mode support with Tailwind CSS",
+    "Collapsible sidebar navigation",
+    "ApexCharts integration (line and bar charts)",
+    "Interactive calendar with FullCalendar",
+    "Authentication pages (Sign In, Sign Up)",
+    "30+ reusable UI components (buttons, modals, alerts, badges, dropdowns)",
+    "Form elements with date picker, multi-select, and file upload",
+    "Responsive layout with Next.js App Router",
+    "TypeScript support throughout",
+    "World map demographic visualization with jVectorMap",
+    "Drag-and-drop file upload with react-dropzone"
+  ],
+  "publicApiSurface": [
+    "Button component (variant: primary | outline, size: sm | md)",
+    "Alert component (with variant and icon support)",
+    "Modal component (useModal hook)",
+    "Dropdown component",
+    "Badge component",
+    "Avatar component",
+    "Table component",
+    "LineChart component (ApexCharts wrapper)",
+    "BarChart component (ApexCharts wrapper)",
+    "EcommerceMetrics component",
+    "MonthlySalesChart component",
+    "MonthlyTarget component",
+    "StatisticsChart component",
+    "RecentOrders component",
+    "DemographicCard component",
+    "CountryMap component (jVectorMap)",
+    "AppSidebar layout component",
+    "AppHeader layout component",
+    "SignInForm component",
+    "SignUpForm component",
+    "DatePicker form component (flatpickr)",
+    "MultiSelect form component",
+    "Select form component",
+    "useModal hook",
+    "useGoBack hook"
+  ]
+}
