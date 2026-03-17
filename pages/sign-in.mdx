@@ -1,0 +1,129 @@
+---
+title: "Sign In Page"
+description: "The authentication sign-in page for TailAdmin, built with a full-width layout and support for email/password credentials as well as social OAuth buttons."
+---
+
+## Overview
+
+The sign-in page lives at `/signin` and is rendered by `src/app/(full-width-pages)/(auth)/signin/page.tsx`. It uses the **full-width pages** layout group — a separate Next.js layout that omits the sidebar and topbar — so the auth UI fills the entire viewport.
+
+The page is a thin wrapper that simply mounts the `SignInForm` client component:
+
+```tsx
+// src/app/(full-width-pages)/(auth)/signin/page.tsx
+import SignInForm from "@/components/auth/SignInForm";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Next.js SignIn Page | TailAdmin - Next.js Dashboard Template",
+  description: "This is Next.js Signin Page TailAdmin Dashboard Template",
+};
+
+export default function SignIn() {
+  return <SignInForm />;
+}
+```
+
+---
+
+## Route Structure
+
+```
+src/app/
+└── (full-width-pages)/          ← layout without sidebar
+    └── (auth)/
+        └── signin/
+            └── page.tsx          ← /signin route
+```
+
+The `(full-width-pages)` route group applies a layout that stretches content edge-to-edge, while the `(auth)` group provides any shared auth-page chrome (e.g. background imagery on the right half of the screen).
+
+---
+
+## SignInForm Component
+
+`src/components/auth/SignInForm.tsx`
+
+The form is a `"use client"` component that manages two local state values:
+
+- `showPassword` — toggles between `type="password"` and `type="text"` on the password input
+- `isChecked` — tracks the *Keep me logged in* checkbox
+
+### Social Sign-in Buttons
+
+Before the credential form, two OAuth buttons are rendered in a `sm:grid-cols-2` grid:
+
+| Button | Provider |
+|---|---|
+| Sign in with Google | Google OAuth |
+| Sign in with X | X (Twitter) OAuth |
+
+Wire these up by replacing the `<button>` elements with calls to your chosen auth library (e.g. NextAuth.js `signIn("google")`).
+
+### Form Fields
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| Email | `email` | Yes | Placeholder: `info@gmail.com` |
+| Password | `password` / `text` | Yes | Toggle visibility with the eye icon |
+| Keep me logged in | checkbox | No | Controlled via `isChecked` state |
+
+A **Forgot password?** link points to `/reset-password`.
+
+```tsx
+// src/components/auth/SignInForm.tsx (form section)
+<form>
+  <div className="space-y-6">
+    <div>
+      <Label>Email <span className="text-error-500">*</span></Label>
+      <Input placeholder="info@gmail.com" type="email" />
+    </div>
+    <div>
+      <Label>Password <span className="text-error-500">*</span></Label>
+      <div className="relative">
+        <Input
+          type={showPassword ? "text" : "password"}
+          placeholder="Enter your password"
+        />
+        <span
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+        >
+          {showPassword ? <EyeIcon /> : <EyeCloseIcon />}
+        </span>
+      </div>
+    </div>
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Checkbox checked={isChecked} onChange={setIsChecked} />
+        <span>Keep me logged in</span>
+      </div>
+      <Link href="/reset-password">Forgot password?</Link>
+    </div>
+    <Button className="w-full" size="sm">Sign in</Button>
+  </div>
+</form>
+```
+
+---
+
+## Customizing the Auth Flow
+
+<Steps>
+  <Step title="Connect an auth provider">
+    Install NextAuth.js or your preferred auth library. Update the form's submit handler to call `signIn()` with the user's credentials.
+  </Step>
+  <Step title="Handle errors">
+    Add a state variable for error messages and render them below the submit button. The `Input` component accepts a `error` prop for inline validation feedback.
+  </Step>
+  <Step title="Redirect after sign-in">
+    Configure the redirect URL in your auth provider settings. For NextAuth.js, set `callbackUrl` or use the `redirect` option in `signIn()`.
+  </Step>
+  <Step title="Protect routes">
+    Add middleware (`src/middleware.ts`) to redirect unauthenticated users to `/signin` for any route under `/(admin)`.
+  </Step>
+</Steps>
+
+<Note>
+  The form currently contains no server-side validation. Add `zod` schema validation or server actions before deploying to production.
+</Note>

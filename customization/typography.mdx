@@ -1,0 +1,195 @@
+---
+title: "Typography"
+description: "Font setup, custom text size utilities, and how to change the typeface in TailAdmin."
+---
+
+## Font: Outfit
+
+TailAdmin uses **[Outfit](https://fonts.google.com/specimen/Outfit)**, a geometric sans-serif typeface loaded via Next.js's built-in font optimization. The font is configured in `src/app/layout.tsx`:
+
+```tsx src/app/layout.tsx
+import { Outfit } from 'next/font/google';
+
+const outfit = Outfit({
+  subsets: ["latin"],
+});
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={`${outfit.className} dark:bg-gray-900`}>
+        {/* ... */}
+      </body>
+    </html>
+  );
+}
+```
+
+Next.js downloads the font at build time, self-hosts it, and injects the class name directly into `<body>`. No external request is made at runtime.
+
+## Tailwind font token
+
+The font is also registered as a Tailwind token in `src/app/globals.css`, which lets you apply it with a utility class anywhere in the template:
+
+```css src/app/globals.css
+@theme {
+  --font-*: initial;
+  --font-outfit: Outfit, sans-serif;
+}
+```
+
+The `--font-*: initial` line clears all default Tailwind font families so only `font-outfit` is available.
+
+The base styles apply the font globally:
+
+```css src/app/globals.css
+@layer base {
+  body {
+    @apply relative font-normal font-outfit z-1 bg-gray-50;
+  }
+}
+```
+
+## Custom text size scale
+
+TailAdmin defines its own typography scale in the `@theme` block. These tokens extend Tailwind's default `text-*` utilities with sizes and line heights optimized for dashboard layouts.
+
+```css src/app/globals.css
+@theme {
+  /* Display / heading sizes */
+  --text-title-2xl: 72px;
+  --text-title-2xl--line-height: 90px;
+
+  --text-title-xl: 60px;
+  --text-title-xl--line-height: 72px;
+
+  --text-title-lg: 48px;
+  --text-title-lg--line-height: 60px;
+
+  --text-title-md: 36px;
+  --text-title-md--line-height: 44px;
+
+  --text-title-sm: 30px;
+  --text-title-sm--line-height: 38px;
+
+  /* Body / UI sizes */
+  --text-theme-xl: 20px;
+  --text-theme-xl--line-height: 30px;
+
+  --text-theme-sm: 14px;
+  --text-theme-sm--line-height: 20px;
+
+  --text-theme-xs: 12px;
+  --text-theme-xs--line-height: 18px;
+}
+```
+
+Each token generates a Tailwind utility class:
+
+| Token | Class | Size / line-height |
+|---|---|---|
+| `--text-title-2xl` | `text-title-2xl` | 72px / 90px |
+| `--text-title-xl` | `text-title-xl` | 60px / 72px |
+| `--text-title-lg` | `text-title-lg` | 48px / 60px |
+| `--text-title-md` | `text-title-md` | 36px / 44px |
+| `--text-title-sm` | `text-title-sm` | 30px / 38px |
+| `--text-theme-xl` | `text-theme-xl` | 20px / 30px |
+| `--text-theme-sm` | `text-theme-sm` | 14px / 20px |
+| `--text-theme-xs` | `text-theme-xs` | 12px / 18px |
+
+## Using type utilities in components
+
+The sidebar and menu components use the custom scale extensively:
+
+```css src/app/globals.css
+@utility menu-item {
+  @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
+}
+
+@utility menu-dropdown-item {
+  @apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium;
+}
+```
+
+Third-party library text overrides also use the scale to ensure visual consistency:
+
+```css src/app/globals.css
+.apexcharts-tooltip-text {
+  @apply !text-theme-xs !text-gray-700 dark:!text-white/90;
+}
+```
+
+## Changing the font family
+
+To switch to a different Google Font, update both `layout.tsx` and `globals.css`.
+
+<Steps>
+  <Step title="Replace the font import in layout.tsx">
+    ```tsx src/app/layout.tsx
+    import { Inter } from 'next/font/google';
+
+    const inter = Inter({
+      subsets: ["latin"],
+    });
+
+    export default function RootLayout({ children }: { children: React.ReactNode }) {
+      return (
+        <html lang="en">
+          <body className={`${inter.className} dark:bg-gray-900`}>
+            {/* ... */}
+          </body>
+        </html>
+      );
+    }
+    ```
+  </Step>
+  <Step title="Update the Tailwind font token">
+    ```css src/app/globals.css
+    @theme {
+      --font-*: initial;
+      --font-inter: Inter, sans-serif;
+    }
+    ```
+  </Step>
+  <Step title="Update the base body style">
+    ```css src/app/globals.css
+    @layer base {
+      body {
+        @apply relative font-normal font-inter z-1 bg-gray-50;
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  Next.js font optimization only works with fonts imported from `next/font/google` or `next/font/local`. Do not load fonts through a `<link>` tag in `<head>` — this bypasses the performance benefits.
+</Note>
+
+## Using a self-hosted font
+
+If you want to use a local font file instead of a Google Font, use `next/font/local`:
+
+```tsx src/app/layout.tsx
+import localFont from 'next/font/local';
+
+const myFont = localFont({
+  src: './fonts/MyFont.woff2',
+});
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className={`${myFont.className} dark:bg-gray-900`}>
+        {/* ... */}
+      </body>
+    </html>
+  );
+}
+```
+
+Place the font file in `src/app/fonts/` and update the `src` path accordingly. Then update the `@theme` token and `@layer base` body style as shown in the steps above.

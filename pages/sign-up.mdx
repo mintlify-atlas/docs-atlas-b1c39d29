@@ -1,0 +1,150 @@
+---
+title: "Sign Up Page"
+description: "The registration page for TailAdmin, providing a full-width sign-up form with social OAuth buttons and credential fields for new account creation."
+---
+
+## Overview
+
+The sign-up page lives at `/signup` and is rendered by `src/app/(full-width-pages)/(auth)/signup/page.tsx`. Like the sign-in page it sits inside the `(full-width-pages)` layout group, which strips away the admin sidebar and topbar so the form occupies the full viewport.
+
+```tsx
+// src/app/(full-width-pages)/(auth)/signup/page.tsx
+import SignUpForm from "@/components/auth/SignUpForm";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Next.js SignUp Page | TailAdmin - Next.js Dashboard Template",
+  description: "This is Next.js SignUp Page TailAdmin Dashboard Template",
+};
+
+export default function SignUp() {
+  return <SignUpForm />;
+}
+```
+
+---
+
+## Route Structure
+
+```
+src/app/
+└── (full-width-pages)/          ← layout without sidebar
+    └── (auth)/
+        └── signup/
+            └── page.tsx          ← /signup route
+```
+
+---
+
+## SignUpForm Component
+
+`src/components/auth/SignUpForm.tsx`
+
+The form is a `"use client"` component that manages:
+
+- `showPassword` — toggles password visibility
+- `isChecked` — tracks the terms-and-conditions checkbox
+
+### Social Sign-up Buttons
+
+Two OAuth buttons appear above the credential form:
+
+| Button | Provider |
+|---|---|
+| Sign up with Google | Google OAuth |
+| Sign up with X | X (Twitter) OAuth |
+
+### Form Fields
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| First Name | `text` | Yes | `id="fname"`, `name="fname"` |
+| Last Name | `text` | Yes | `id="lname"`, `name="lname"` |
+| Email | `email` | Yes | `id="email"`, `name="email"` |
+| Password | `password` / `text` | Yes | Toggle visibility with eye icon |
+| Terms checkbox | checkbox | — | Must agree before submitting |
+
+First name and last name are arranged in a `sm:grid-cols-2` two-column grid. All other fields are full width.
+
+```tsx
+// src/components/auth/SignUpForm.tsx (form section)
+<form>
+  <div className="space-y-5">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="sm:col-span-1">
+        <Label>First Name<span className="text-error-500">*</span></Label>
+        <Input type="text" id="fname" name="fname" placeholder="Enter your first name" />
+      </div>
+      <div className="sm:col-span-1">
+        <Label>Last Name<span className="text-error-500">*</span></Label>
+        <Input type="text" id="lname" name="lname" placeholder="Enter your last name" />
+      </div>
+    </div>
+
+    <div>
+      <Label>Email<span className="text-error-500">*</span></Label>
+      <Input type="email" id="email" name="email" placeholder="Enter your email" />
+    </div>
+
+    <div>
+      <Label>Password<span className="text-error-500">*</span></Label>
+      <div className="relative">
+        <Input
+          placeholder="Enter your password"
+          type={showPassword ? "text" : "password"}
+        />
+        <span
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+        >
+          {showPassword ? <EyeIcon /> : <EyeCloseIcon />}
+        </span>
+      </div>
+    </div>
+
+    <div className="flex items-center gap-3">
+      <Checkbox className="w-5 h-5" checked={isChecked} onChange={setIsChecked} />
+      <p>By creating an account means you agree to the Terms and Conditions, and our Privacy Policy</p>
+    </div>
+
+    <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+      Sign Up
+    </button>
+  </div>
+</form>
+```
+
+---
+
+## Full-Width Layout
+
+Both auth pages use the `(full-width-pages)` layout group, which means they share a layout that is completely separate from the main admin layout. This lets you apply a different background, remove navigation chrome, or add a decorative side panel without affecting any admin pages.
+
+To update the shared auth page wrapper, edit the layout file at:
+
+```
+src/app/(full-width-pages)/layout.tsx
+```
+
+---
+
+## Customizing the Sign-Up Flow
+
+<Steps>
+  <Step title="Add form validation">
+    Install `react-hook-form` and `zod`. Wrap the form with `useForm()` and attach a Zod schema to validate all fields before submission.
+  </Step>
+  <Step title="Connect to your backend">
+    Replace the static `<button>` with a submit handler that calls your registration API endpoint or a NextAuth.js credentials provider.
+  </Step>
+  <Step title="Add additional fields">
+    Copy the existing `<Label>` + `<Input>` pattern for any extra fields your app requires (e.g. company name, phone number).
+  </Step>
+  <Step title="Redirect after registration">
+    After a successful sign-up, use `router.push("/")` from `next/navigation` to redirect the new user to the dashboard.
+  </Step>
+</Steps>
+
+<Note>
+  The terms-and-conditions checkbox is currently uncontrolled at the form-submission level. Add a validation rule to prevent submission when `isChecked` is `false`.
+</Note>

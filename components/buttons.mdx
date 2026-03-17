@@ -1,0 +1,174 @@
+---
+title: "Buttons"
+description: "A flexible button component with primary and outline variants, two sizes, optional icons, and a disabled state."
+---
+
+## Overview
+
+The `Button` component is a styled wrapper around the native `<button>` element. It supports two visual variants, two sizes, leading and trailing icons, click handling, and a disabled state. All styling is applied with Tailwind CSS utility classes and respects dark mode automatically.
+
+## Import
+
+```tsx
+import Button from "@/components/ui/button/Button";
+```
+
+## Props
+
+<ParamField path="children" type="ReactNode" required>
+  The label or content rendered inside the button.
+</ParamField>
+
+<ParamField path="variant" type="primary | outline" default="primary">
+  Controls the visual style of the button.
+
+  - `primary` — filled brand-color background with white text
+  - `outline` — white background with a gray ring and gray text
+</ParamField>
+
+<ParamField path="size" type="sm | md" default="md">
+  Controls the padding and perceived size of the button.
+
+  - `sm` — `px-4 py-3 text-sm`
+  - `md` — `px-5 py-3.5 text-sm`
+</ParamField>
+
+<ParamField path="startIcon" type="ReactNode">
+  An icon element rendered to the left of the label. Wrap any SVG or icon component here.
+</ParamField>
+
+<ParamField path="endIcon" type="ReactNode">
+  An icon element rendered to the right of the label.
+</ParamField>
+
+<ParamField path="onClick" type="() => void">
+  Callback fired when the button is clicked.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  When `true`, the button is non-interactive and rendered with reduced opacity and a `cursor-not-allowed` cursor.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes merged onto the button element.
+</ParamField>
+
+## Variants
+
+### Primary button
+
+The default variant. Uses the brand color scale for the background.
+
+```tsx
+<Button variant="primary" size="sm">Button Text</Button>
+<Button variant="primary" size="md">Button Text</Button>
+```
+
+### Outline button
+
+A secondary-style button with a bordered, neutral background.
+
+```tsx
+<Button variant="outline" size="sm">Button Text</Button>
+<Button variant="outline" size="md">Button Text</Button>
+```
+
+## Icon buttons
+
+Pass any React node to `startIcon` or `endIcon` to place an icon beside the label.
+
+<CodeGroup>
+
+```tsx Left icon (primary)
+import { BoxIcon } from "@/icons";
+
+<Button size="sm" variant="primary" startIcon={<BoxIcon />}>
+  Button Text
+</Button>
+<Button size="md" variant="primary" startIcon={<BoxIcon />}>
+  Button Text
+</Button>
+```
+
+```tsx Right icon (primary)
+import { BoxIcon } from "@/icons";
+
+<Button size="sm" variant="primary" endIcon={<BoxIcon />}>
+  Button Text
+</Button>
+<Button size="md" variant="primary" endIcon={<BoxIcon />}>
+  Button Text
+</Button>
+```
+
+```tsx Left icon (outline)
+import { BoxIcon } from "@/icons";
+
+<Button size="sm" variant="outline" startIcon={<BoxIcon />}>
+  Button Text
+</Button>
+<Button size="md" variant="outline" startIcon={<BoxIcon />}>
+  Button Text
+</Button>
+```
+
+```tsx Right icon (outline)
+import { BoxIcon } from "@/icons";
+
+<Button size="sm" variant="outline" endIcon={<BoxIcon />}>
+  Button Text
+</Button>
+<Button size="md" variant="outline" endIcon={<BoxIcon />}>
+  Button Text
+</Button>
+```
+
+</CodeGroup>
+
+## Disabled state
+
+Set `disabled` to `true` to prevent interaction. The button renders at 50% opacity with a non-clickable cursor.
+
+```tsx
+<Button variant="primary" disabled>
+  Button Text
+</Button>
+
+<Button variant="outline" disabled>
+  Button Text
+</Button>
+```
+
+<Note>
+  The `disabled` prop passes through to the native `<button>` element, so it is fully accessible and skipped by keyboard navigation.
+</Note>
+
+## Click handler
+
+Provide an `onClick` callback for custom interaction logic.
+
+```tsx
+<Button
+  variant="primary"
+  onClick={() => console.log("clicked")}
+>
+  Save changes
+</Button>
+```
+
+## Custom styling
+
+Use `className` to extend or override the default styles without modifying the component source.
+
+```tsx
+<Button
+  variant="primary"
+  className="w-full rounded-full"
+>
+  Full-width pill button
+</Button>
+```
+
+## Source file
+
+`src/components/ui/button/Button.tsx`

@@ -1,0 +1,294 @@
+---
+title: "Line charts"
+description: "An area/line chart component built on ApexCharts and dynamically loaded with Next.js for SSR compatibility."
+---
+
+## Overview
+
+`LineChartOne` renders a multi-series area chart using [ApexCharts](https://apexcharts.com/) via the `react-apexcharts` wrapper. Because ApexCharts relies on browser APIs, the component is dynamically imported with `ssr: false` to avoid hydration errors in Next.js.
+
+The chart displays two data series — **Sales** and **Revenue** — plotted over twelve monthly categories, with gradient fills beneath each line.
+
+<Note>
+  `LineChartOne` requires the `react-apexcharts` and `apexcharts` packages. Install them if they are not already present:
+
+  ```bash
+  npm install react-apexcharts apexcharts
+  ```
+</Note>
+
+## Import
+
+```tsx
+import LineChartOne from "@/components/charts/line/LineChartOne";
+```
+
+## Usage
+
+Drop `LineChartOne` directly into any page or card component. It manages its own chart options and series data internally.
+
+```tsx
+import LineChartOne from "@/components/charts/line/LineChartOne";
+import ComponentCard from "@/components/common/ComponentCard";
+
+export default function LineChartPage() {
+  return (
+    <div className="space-y-6">
+      <ComponentCard title="Line Chart 1">
+        <LineChartOne />
+      </ComponentCard>
+    </div>
+  );
+}
+```
+
+## Component source
+
+```tsx
+"use client";
+import React from "react";
+import { ApexOptions } from "apexcharts";
+import dynamic from "next/dynamic";
+
+// Dynamically import to avoid SSR issues with browser-only ApexCharts APIs
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
+
+export default function LineChartOne() {
+  const options: ApexOptions = {
+    legend: {
+      show: false,
+      position: "top",
+      horizontalAlign: "left",
+    },
+    colors: ["#465FFF", "#9CB9FF"],
+    chart: {
+      fontFamily: "Outfit, sans-serif",
+      height: 310,
+      type: "line",
+      toolbar: {
+        show: false,
+      },
+    },
+    stroke: {
+      curve: "straight",
+      width: [2, 2],
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+      },
+    },
+    markers: {
+      size: 0,
+      strokeColors: "#fff",
+      strokeWidth: 2,
+      hover: {
+        size: 6,
+      },
+    },
+    grid: {
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        format: "dd MMM yyyy",
+      },
+    },
+    xaxis: {
+      type: "category",
+      categories: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      tooltip: { enabled: false },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          fontSize: "12px",
+          colors: ["#6B7280"],
+        },
+      },
+      title: {
+        text: "",
+        style: { fontSize: "0px" },
+      },
+    },
+  };
+
+  const series = [
+    {
+      name: "Sales",
+      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+    },
+    {
+      name: "Revenue",
+      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+    },
+  ];
+
+  return (
+    <div className="max-w-full overflow-x-auto custom-scrollbar">
+      <div id="chartEight" className="min-w-[1000px]">
+        <ReactApexChart
+          options={options}
+          series={series}
+          type="area"
+          height={310}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+## Chart configuration
+
+### Series data
+
+The `series` array defines each line in the chart. Every object requires a `name` and a `data` array whose length matches the number of x-axis `categories`.
+
+```tsx
+const series = [
+  {
+    name: "Sales",
+    data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+  },
+  {
+    name: "Revenue",
+    data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+  },
+];
+```
+
+### X-axis categories
+
+Categories map each data point to a label on the x-axis. The default configuration uses month abbreviations.
+
+```tsx
+xaxis: {
+  type: "category",
+  categories: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+}
+```
+
+### Line colors
+
+The `colors` array maps to each series in order. The default palette uses TailAdmin's primary brand blue.
+
+```tsx
+colors: ["#465FFF", "#9CB9FF"],
+```
+
+### Stroke style
+
+Control the line shape and thickness with the `stroke` option. TailAdmin uses `straight` lines with a `2px` width.
+
+```tsx
+stroke: {
+  curve: "straight", // "straight" | "smooth" | "stepline"
+  width: [2, 2],     // one value per series
+},
+```
+
+### Gradient fill
+
+The area beneath each line uses a vertical gradient that fades from 55% opacity at the top to fully transparent at the bottom.
+
+```tsx
+fill: {
+  type: "gradient",
+  gradient: {
+    opacityFrom: 0.55,
+    opacityTo: 0,
+  },
+},
+```
+
+### Markers
+
+Data point markers are hidden by default but appear at `6px` on hover.
+
+```tsx
+markers: {
+  size: 0,
+  strokeColors: "#fff",
+  strokeWidth: 2,
+  hover: {
+    size: 6,
+  },
+},
+```
+
+## Customization options
+
+<Tabs>
+  <Tab title="Colors">
+    Override the `colors` array with any hex values to match your brand palette:
+
+    ```tsx
+    colors: ["#10B981", "#F59E0B"],
+    ```
+  </Tab>
+  <Tab title="Curve style">
+    Change `stroke.curve` to adjust how lines are drawn between data points:
+
+    ```tsx
+    stroke: {
+      curve: "smooth", // smooth curves instead of straight lines
+      width: [2, 2],
+    },
+    ```
+  </Tab>
+  <Tab title="Grid lines">
+    Toggle x-axis and y-axis grid lines independently:
+
+    ```tsx
+    grid: {
+      xaxis: { lines: { show: true } },  // show vertical grid lines
+      yaxis: { lines: { show: false } }, // hide horizontal grid lines
+    },
+    ```
+  </Tab>
+  <Tab title="Toolbar">
+    Enable the ApexCharts toolbar to allow users to download or zoom the chart:
+
+    ```tsx
+    chart: {
+      toolbar: {
+        show: true,
+      },
+    },
+    ```
+  </Tab>
+</Tabs>
+
+## SSR and dynamic import
+
+ApexCharts uses `window` and `document` APIs that are unavailable during server-side rendering. The component handles this with Next.js `dynamic`:
+
+```tsx
+import dynamic from "next/dynamic";
+
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
+```
+
+<Warning>
+  Always use `ssr: false` when importing `react-apexcharts` in a Next.js app. Removing this flag will cause a `ReferenceError: window is not defined` error during server rendering.
+</Warning>
+
+The file also includes the `"use client"` directive at the top, which is required because the component uses client-side state and browser APIs.
+
+## Source file
+
+`src/components/charts/line/LineChartOne.tsx`

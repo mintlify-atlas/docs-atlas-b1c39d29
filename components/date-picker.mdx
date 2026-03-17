@@ -1,0 +1,177 @@
+---
+title: "Date picker"
+description: "A date picker component built on flatpickr with support for single dates, date ranges, multiple selections, and time picking."
+---
+
+## Overview
+
+The `DatePicker` component wraps [flatpickr](https://flatpickr.js.org/) — a lightweight, zero-dependency date library — in a styled input that matches TailAdmin's design system. It handles the flatpickr lifecycle automatically through a `useEffect`, so you get a fully functional calendar without any manual DOM wiring.
+
+Flatpickr is initialized on the component's `id` and destroyed when the component unmounts, preventing memory leaks.
+
+<Note>
+  `flatpickr` is a required peer dependency. Install it before using this component:
+
+  ```bash
+  npm install flatpickr
+  ```
+
+  The component imports `flatpickr/dist/flatpickr.css` for calendar styles. Make sure your bundler supports CSS imports.
+</Note>
+
+## Import
+
+```tsx
+import DatePicker from "@/components/form/date-picker";
+```
+
+## Props
+
+<ParamField path="id" type="string" required>
+  A unique ID for the underlying `<input>` element. Flatpickr uses this selector to attach to the correct DOM node. Each `DatePicker` instance on a page must have a distinct `id`.
+</ParamField>
+
+<ParamField path="label" type="string">
+  Optional label text rendered above the input via the `Label` component.
+</ParamField>
+
+<ParamField path="placeholder" type="string">
+  Placeholder text shown in the input when no date is selected.
+</ParamField>
+
+<ParamField path="mode" type="single | multiple | range | time" default="single">
+  The date-selection mode.
+
+  - `single` — pick one date
+  - `multiple` — pick several non-contiguous dates
+  - `range` — pick a start and end date
+  - `time` — pick a time only
+</ParamField>
+
+<ParamField path="defaultDate" type="DateOption">
+  A pre-selected date. Accepts any value that flatpickr's `DateOption` type allows: a `Date` object, a date string (`"2024-06-15"`), a Unix timestamp, or an array of those for `multiple` and `range` modes.
+</ParamField>
+
+<ParamField path="onChange" type="Hook | Hook[]">
+  Callback(s) fired whenever the selected date changes. The handler receives the flatpickr signature:
+
+  ```ts
+  (selectedDates: Date[], dateStr: string, instance: flatpickr.Instance) => void
+  ```
+</ParamField>
+
+## Usage
+
+### Basic date picker
+
+```tsx
+import DatePicker from "@/components/form/date-picker";
+
+<DatePicker
+  id="start-date"
+  label="Start date"
+  placeholder="Select a date"
+  onChange={(dates, currentDateString) => {
+    console.log({ dates, currentDateString });
+  }}
+/>
+```
+
+### Date range selection
+
+Set `mode` to `"range"` to allow the user to pick a start and end date. Both dates are returned in the `selectedDates` array.
+
+```tsx
+import DatePicker from "@/components/form/date-picker";
+
+<DatePicker
+  id="date-range"
+  label="Date range"
+  placeholder="Select start and end dates"
+  mode="range"
+  onChange={(dates, currentDateString) => {
+    const [start, end] = dates;
+    console.log("From:", start, "To:", end);
+  }}
+/>
+```
+
+### Multiple date selection
+
+```tsx
+<DatePicker
+  id="multi-date"
+  label="Select multiple dates"
+  placeholder="Choose dates"
+  mode="multiple"
+  onChange={(dates) => {
+    console.log("Selected dates:", dates);
+  }}
+/>
+```
+
+### Time picker
+
+```tsx
+<DatePicker
+  id="time-picker"
+  label="Select time"
+  placeholder="HH:MM"
+  mode="time"
+  onChange={(dates, timeString) => {
+    console.log("Selected time:", timeString);
+  }}
+/>
+```
+
+### Pre-selecting a default date
+
+Pass any value accepted by flatpickr's `DateOption` — a string, `Date` object, or Unix timestamp:
+
+```tsx
+{/* String */}
+<DatePicker
+  id="preset-date"
+  label="Preset date"
+  defaultDate="2024-06-15"
+  onChange={(dates, dateStr) => console.log(dateStr)}
+/>
+
+{/* Date object */}
+<DatePicker
+  id="preset-today"
+  label="Today"
+  defaultDate={new Date()}
+  onChange={(dates, dateStr) => console.log(dateStr)}
+/>
+
+{/* Range */}
+<DatePicker
+  id="preset-range"
+  label="Pre-filled range"
+  mode="range"
+  defaultDate={["2024-06-01", "2024-06-30"]}
+  onChange={(dates) => console.log(dates)}
+/>
+```
+
+## Flatpickr options
+
+The component configures flatpickr with these fixed options:
+
+| Option | Value | Description |
+|---|---|---|
+| `mode` | from prop | Selection mode. Defaults to `"single"`. |
+| `static` | `true` | Renders the calendar inline rather than in a floating portal. |
+| `monthSelectorType` | `"static"` | Displays month as static text instead of a dropdown. |
+| `dateFormat` | `"Y-m-d"` | Output date format (ISO 8601). |
+| `defaultDate` | from prop | Pre-selected date(s). |
+| `onChange` | from prop | Change handler. |
+
+<Tip>
+  If you need additional flatpickr options (such as `minDate`, `maxDate`, or `enableTime`), extend the `DatePicker` component in `src/components/form/date-picker.tsx` and pass your options directly to the `flatpickr()` initialization call.
+</Tip>
+
+## Source file
+
+`src/components/form/date-picker.tsx`

@@ -1,0 +1,134 @@
+---
+title: "Badges"
+description: "A pill-shaped label component with light and solid variants, seven color options, two sizes, and optional leading or trailing icons."
+---
+
+## Overview
+
+The `Badge` component renders a small, rounded label used to communicate status, category, or count. It supports two visual variants (`light` and `solid`), seven semantic colors, two sizes, and optional icon slots on either side.
+
+## Import
+
+```tsx
+import Badge from "@/components/ui/badge/Badge";
+```
+
+## Props
+
+<ParamField path="children" type="ReactNode" required>
+  The text or content displayed inside the badge.
+</ParamField>
+
+<ParamField path="variant" type="light | solid" default="light">
+  - `light` — pastel background with colored text
+  - `solid` — fully saturated background with white text
+</ParamField>
+
+<ParamField path="color" type="primary | success | error | warning | info | light | dark" default="primary">
+  The color scale applied to the badge. Works with both `light` and `solid` variants.
+</ParamField>
+
+<ParamField path="size" type="sm | md" default="md">
+  - `sm` — `text-theme-xs`
+  - `md` — `text-sm`
+</ParamField>
+
+<ParamField path="startIcon" type="ReactNode">
+  An icon rendered to the left of the badge label.
+</ParamField>
+
+<ParamField path="endIcon" type="ReactNode">
+  An icon rendered to the right of the badge label.
+</ParamField>
+
+## Variants
+
+### Light background
+
+Passel backgrounds with colored text — suited for tables, status columns, and list items.
+
+```tsx
+<Badge variant="light" color="primary">Primary</Badge>
+<Badge variant="light" color="success">Success</Badge>
+<Badge variant="light" color="error">Error</Badge>
+<Badge variant="light" color="warning">Warning</Badge>
+<Badge variant="light" color="info">Info</Badge>
+<Badge variant="light" color="light">Light</Badge>
+<Badge variant="light" color="dark">Dark</Badge>
+```
+
+### Solid background
+
+Fully saturated backgrounds with white text — suited for tags, chips, and prominent labels.
+
+```tsx
+<Badge variant="solid" color="primary">Primary</Badge>
+<Badge variant="solid" color="success">Success</Badge>
+<Badge variant="solid" color="error">Error</Badge>
+<Badge variant="solid" color="warning">Warning</Badge>
+<Badge variant="solid" color="info">Info</Badge>
+<Badge variant="solid" color="light">Light</Badge>
+<Badge variant="solid" color="dark">Dark</Badge>
+```
+
+## Icon badges
+
+<CodeGroup>
+
+```tsx Left icon (light)
+import { PlusIcon } from "@/icons";
+
+<Badge variant="light" color="primary" startIcon={<PlusIcon />}>Primary</Badge>
+<Badge variant="light" color="success" startIcon={<PlusIcon />}>Success</Badge>
+<Badge variant="light" color="error"   startIcon={<PlusIcon />}>Error</Badge>
+<Badge variant="light" color="warning" startIcon={<PlusIcon />}>Warning</Badge>
+<Badge variant="light" color="info"    startIcon={<PlusIcon />}>Info</Badge>
+```
+
+```tsx Left icon (solid)
+import { PlusIcon } from "@/icons";
+
+<Badge variant="solid" color="primary" startIcon={<PlusIcon />}>Primary</Badge>
+<Badge variant="solid" color="success" startIcon={<PlusIcon />}>Success</Badge>
+<Badge variant="solid" color="error"   startIcon={<PlusIcon />}>Error</Badge>
+<Badge variant="solid" color="warning" startIcon={<PlusIcon />}>Warning</Badge>
+<Badge variant="solid" color="info"    startIcon={<PlusIcon />}>Info</Badge>
+```
+
+```tsx Right icon (light)
+import { PlusIcon } from "@/icons";
+
+<Badge variant="light" color="primary" endIcon={<PlusIcon />}>Primary</Badge>
+<Badge variant="light" color="success" endIcon={<PlusIcon />}>Success</Badge>
+<Badge variant="light" color="error"   endIcon={<PlusIcon />}>Error</Badge>
+<Badge variant="light" color="warning" endIcon={<PlusIcon />}>Warning</Badge>
+<Badge variant="light" color="info"    endIcon={<PlusIcon />}>Info</Badge>
+```
+
+```tsx Right icon (solid)
+import { PlusIcon } from "@/icons";
+
+<Badge variant="solid" color="primary" endIcon={<PlusIcon />}>Primary</Badge>
+<Badge variant="solid" color="success" endIcon={<PlusIcon />}>Success</Badge>
+<Badge variant="solid" color="error"   endIcon={<PlusIcon />}>Error</Badge>
+<Badge variant="solid" color="warning" endIcon={<PlusIcon />}>Warning</Badge>
+<Badge variant="solid" color="info"    endIcon={<PlusIcon />}>Info</Badge>
+```
+
+</CodeGroup>
+
+## Color reference
+
+| Color | Light background | Light text | Solid background |
+|-------|-----------------|------------|------------------|
+| `primary` | `bg-brand-50` | `text-brand-500` | `bg-brand-500` |
+| `success` | `bg-success-50` | `text-success-600` | `bg-success-500` |
+| `error` | `bg-error-50` | `text-error-600` | `bg-error-500` |
+| `warning` | `bg-warning-50` | `text-warning-600` | `bg-warning-500` |
+| `info` | `bg-blue-light-50` | `text-blue-light-500` | `bg-blue-light-500` |
+| `light` | `bg-gray-100` | `text-gray-700` | `bg-gray-400` |
+| `dark` | `bg-gray-500` | `text-white` | `bg-gray-700` |
+
+## Source file
+
+`src/components/ui/badge/Badge.tsx`

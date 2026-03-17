@@ -1,0 +1,191 @@
+---
+title: "Dashboard layout"
+description: "How the (admin) route group layout composes AppSidebar, AppHeader, and Backdrop to wrap every dashboard page."
+---
+
+## Overview
+
+Every admin dashboard page in TailAdmin is wrapped by a shared layout defined in `src/app/(admin)/layout.tsx`. This layout renders the `AppSidebar`, `AppHeader`, and `Backdrop` once and places your page's content (`children`) in the remaining space. You get the full shell — navigation, header, responsive sidebar — for free on every route inside the `(admin)` group.
+
+## Layout source
+
+```tsx src/app/(admin)/layout.tsx
+"use client";
+
+import { useSidebar } from "@/context/SidebarContext";
+import AppHeader from "@/layout/AppHeader";
+import AppSidebar from "@/layout/AppSidebar";
+import Backdrop from "@/layout/Backdrop";
+import React from "react";
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+
+  // Dynamic class for main content margin based on sidebar state
+  const mainContentMargin = isMobileOpen
+    ? "ml-0"
+    : isExpanded || isHovered
+    ? "lg:ml-[290px]"
+    : "lg:ml-[90px]";
+
+  return (
+    <div className="min-h-screen xl:flex">
+      {/* Sidebar and Backdrop */}
+      <AppSidebar />
+      <Backdrop />
+      {/* Main Content Area */}
+      <div
+        className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
+      >
+        {/* Header */}
+        <AppHeader />
+        {/* Page Content */}
+        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+```
+
+## How the layout works
+
+### Sidebar-aware margin
+
+The main content area shifts its left margin to avoid overlapping the sidebar. The layout reads `isExpanded`, `isHovered`, and `isMobileOpen` from `SidebarContext` and applies the correct `ml-*` class:
+
+| Sidebar state | Applied class |
+|---|---|
+| Mobile open | `ml-0` (sidebar overlays content) |
+| Expanded or hovered | `lg:ml-[290px]` |
+| Collapsed | `lg:ml-[90px]` |
+
+The `transition-all duration-300` class animates the margin change smoothly as the sidebar expands and collapses.
+
+### Content wrapper
+
+Page content is placed inside a constrained, padded container:
+
+```tsx
+<div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+```
+
+This limits the maximum width to the `2xl` breakpoint and adds responsive padding. All `page.tsx` files inside `(admin)` render inside this wrapper.
+
+### Context providers
+
+The layout is marked `"use client"` because it reads from `useSidebar`. The `SidebarProvider` and `ThemeProvider` that supply this context are registered higher up in `src/app/layout.tsx` — the root layout:
+
+```tsx src/app/layout.tsx
+import { SidebarProvider } from '@/context/SidebarContext';
+import { ThemeProvider } from '@/context/ThemeContext';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className={`${outfit.className} dark:bg-gray-900`}>
+        <ThemeProvider>
+          <SidebarProvider>{children}</SidebarProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+## Route group pattern
+
+The folder name `(admin)` is a Next.js **route group**. Parentheses tell the router to exclude the segment from the URL, so the folder organizes files without affecting any routes.
+
+```
+src/app/(admin)/
+├── layout.tsx        ← applied to all pages below
+├── page.tsx          → /
+├── (others-pages)/
+│   ├── calendar/
+│   │   └── page.tsx  → /calendar
+│   └── profile/
+│       └── page.tsx  → /profile
+└── (ui-elements)/
+    └── buttons/
+        └── page.tsx  → /buttons
+```
+
+All routes resolve as top-level paths (`/`, `/calendar`, `/buttons`) even though the files are nested under `(admin)`. The shared layout still wraps all of them.
+
+## Adding a new dashboard page
+
+<Steps>
+  <Step title="Create the page file">
+    Add a `page.tsx` inside any sub-folder of `src/app/(admin)/`. For example, to create a route at `/reports`:
+
+    ```tsx src/app/(admin)/reports/page.tsx
+    export default function ReportsPage() {
+      return (
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            Reports
+          </h1>
+          {/* Your page content */}
+        </div>
+      );
+    }
+    ```
+  </Step>
+
+  <Step title="Add the route to the sidebar">
+    Open `src/layout/AppSidebar.tsx` and add an entry to `navItems` or `othersItems`:
+
+    ```tsx
+    {
+      icon: <PieChartIcon />,
+      name: "Reports",
+      path: "/reports",
+    },
+    ```
+
+    See [Sidebar](/components/sidebar) for full nav item configuration options.
+  </Step>
+
+  <Step title="Visit the new route">
+    Start the dev server and open `http://localhost:3000/reports`. The page renders inside the full admin shell automatically.
+  </Step>
+</Steps>
+
+## Full-width layout
+
+Pages that should render **without** the sidebar and header — such as sign-in, sign-up, and error pages — live in the `(full-width-pages)` route group. Its layout is a minimal pass-through wrapper:
+
+```tsx src/app/(full-width-pages)/layout.tsx
+export default function FullWidthPageLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <div>{children}</div>;
+}
+```
+
+The folder structure mirrors the admin group:
+
+```
+src/app/(full-width-pages)/
+├── layout.tsx           ← no sidebar or header
+├── (auth)/
+│   ├── signin/
+│   │   └── page.tsx     → /signin
+│   └── signup/
+│       └── page.tsx     → /signup
+└── (error-pages)/
+    └── error-404/
+        └── page.tsx     → /error-404
+```
+
+To add a new full-width page, create a `page.tsx` inside `(full-width-pages)` and it will render without any admin chrome.
+
+<Tip>
+  If you want a page to be accessible both with and without the sidebar — for example, a public-facing landing page — create a separate route group with its own `layout.tsx` at the same level as `(admin)` and `(full-width-pages)`.
+</Tip>

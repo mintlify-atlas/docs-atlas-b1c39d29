@@ -1,0 +1,156 @@
+---
+title: "Dropdowns"
+description: "A positionable dropdown panel with automatic click-outside dismissal, paired with DropdownItem for building menus and action lists."
+---
+
+## Overview
+
+TailAdmin ships two composable dropdown primitives:
+
+- **`Dropdown`** — the floating panel container. Handles click-outside detection and visibility.
+- **`DropdownItem`** — an individual menu entry that renders as either a `<button>` or a Next.js `<Link>`.
+
+You manage the open/close boolean state yourself — typically with `useState` or the `useModal` hook.
+
+## Import
+
+```tsx
+import { Dropdown } from "@/components/ui/dropdown/Dropdown";
+import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
+```
+
+## `Dropdown` props
+
+<ParamField path="isOpen" type="boolean" required>
+  When `true`, the panel is rendered. When `false`, the component returns `null`.
+</ParamField>
+
+<ParamField path="onClose" type="() => void" required>
+  Called when the user clicks outside the panel. Wire this to your state setter.
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  The content rendered inside the panel — typically a list of `DropdownItem` elements.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes merged onto the panel element. Use this to set a specific width, padding, or position offset.
+</ParamField>
+
+## `DropdownItem` props
+
+<ParamField path="children" type="ReactNode" required>
+  The label or content of the menu item.
+</ParamField>
+
+<ParamField path="tag" type="button | a" default="button">
+  Determines the underlying element.
+
+  - `button` — renders a `<button>` element
+  - `a` — renders a Next.js `<Link>` element; requires `href`
+</ParamField>
+
+<ParamField path="href" type="string">
+  The navigation target. Only used when `tag` is `"a"`.
+</ParamField>
+
+<ParamField path="onClick" type="() => void">
+  Callback fired when the item is clicked, before `onItemClick`.
+</ParamField>
+
+<ParamField path="onItemClick" type="() => void">
+  Secondary callback fired after `onClick`. Useful for closing the parent dropdown.
+</ParamField>
+
+<ParamField path="baseClassName" type="string" default="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+  The base Tailwind classes applied to the item. Override to change the default menu item appearance entirely.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes merged with `baseClassName`.
+</ParamField>
+
+## Click-outside behaviour
+
+`Dropdown` attaches a `mousedown` listener to `document` on mount and removes it on unmount. When a click occurs outside both the panel (`dropdownRef`) and any element with the class `dropdown-toggle`, the `onClose` callback is fired.
+
+<Note>
+  Add the class `dropdown-toggle` to your trigger button so that clicking it does not immediately re-close the panel when the click propagates to the document listener.
+</Note>
+
+## Usage
+
+### Button-triggered dropdown menu
+
+```tsx
+"use client";
+import { useState } from "react";
+import { Dropdown } from "@/components/ui/dropdown/Dropdown";
+import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
+
+export default function ActionsDropdown() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <button
+        className="dropdown-toggle px-4 py-2 text-sm bg-white border rounded-lg"
+        onClick={() => setIsOpen((prev) => !prev)}
+      >
+        Actions
+      </button>
+
+      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <DropdownItem onItemClick={() => setIsOpen(false)}>
+          Edit
+        </DropdownItem>
+        <DropdownItem onItemClick={() => setIsOpen(false)}>
+          Duplicate
+        </DropdownItem>
+        <DropdownItem onItemClick={() => setIsOpen(false)}>
+          Delete
+        </DropdownItem>
+      </Dropdown>
+    </div>
+  );
+}
+```
+
+### Navigation links
+
+Switch `tag` to `"a"` and provide an `href` to render items as Next.js links.
+
+```tsx
+<Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)}>
+  <DropdownItem tag="a" href="/profile" onItemClick={() => setIsOpen(false)}>
+    Profile
+  </DropdownItem>
+  <DropdownItem tag="a" href="/settings" onItemClick={() => setIsOpen(false)}>
+    Settings
+  </DropdownItem>
+  <DropdownItem tag="a" href="/signout" onItemClick={() => setIsOpen(false)}>
+    Sign out
+  </DropdownItem>
+</Dropdown>
+```
+
+### Custom width and position
+
+Use `className` on `Dropdown` to adjust the panel width or fine-tune its position relative to the trigger:
+
+```tsx
+<Dropdown
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  className="w-56"
+>
+  {/* items */}
+</Dropdown>
+```
+
+The panel is absolutely positioned (`absolute right-0 mt-2`) by default, so it aligns to the right edge of its nearest `relative` ancestor. Wrap your trigger and dropdown in a `relative` container.
+
+## Source files
+
+- `src/components/ui/dropdown/Dropdown.tsx`
+- `src/components/ui/dropdown/DropdownItem.tsx`

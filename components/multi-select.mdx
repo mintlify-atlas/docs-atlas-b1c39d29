@@ -1,0 +1,146 @@
+---
+title: "Multi-select"
+description: "A custom multi-select dropdown component that lets users pick multiple options and remove individual selections with a tag-style chip interface."
+---
+
+## Overview
+
+The `MultiSelect` component renders a dropdown that supports selecting multiple values simultaneously. Selected items appear as removable chip tags inside the trigger. The dropdown opens and closes by clicking the trigger, and each option toggles on or off independently.
+
+`MultiSelect` manages its own open/close and selected-values state internally via `useState`, making it straightforward to drop into any form.
+
+## Import
+
+```tsx
+import MultiSelect from "@/components/form/MultiSelect";
+```
+
+## Props
+
+<ParamField path="label" type="string" required>
+  Label text rendered above the dropdown trigger.
+</ParamField>
+
+<ParamField path="options" type="Option[]" required>
+  The list of selectable options. Each item must conform to:
+
+  ```ts
+  interface Option {
+    value: string; // unique identifier used internally
+    text: string;  // display text shown in the dropdown and chips
+    selected: boolean; // initial selected state (use false; rely on defaultSelected instead)
+  }
+  ```
+</ParamField>
+
+<ParamField path="defaultSelected" type="string[]" default="[]">
+  An array of `value` strings that should be pre-selected when the component first mounts.
+</ParamField>
+
+<ParamField path="onChange" type="(selected: string[]) => void">
+  Callback fired with the full array of currently selected `value` strings whenever the selection changes.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Prevents the dropdown from opening when `true`.
+</ParamField>
+
+## Usage
+
+### Basic example
+
+<Steps>
+  <Step title="Define your options array">
+    ```tsx
+    const options = [
+      { value: "1", text: "Option 1", selected: false },
+      { value: "2", text: "Option 2", selected: false },
+      { value: "3", text: "Option 3", selected: false },
+      { value: "4", text: "Option 4", selected: false },
+      { value: "5", text: "Option 5", selected: false },
+    ];
+    ```
+  </Step>
+
+  <Step title="Render the component">
+    ```tsx
+    import MultiSelect from "@/components/form/MultiSelect";
+
+    <MultiSelect
+      label="Categories"
+      options={options}
+      onChange={(values) => console.log("Selected:", values)}
+    />
+    ```
+  </Step>
+</Steps>
+
+### Pre-selected values
+
+Pass an array of `value` strings to `defaultSelected` to pre-select options on mount:
+
+```tsx
+<MultiSelect
+  label="Multiple select options"
+  options={options}
+  defaultSelected={["1", "3"]}
+  onChange={(values) => console.log(values)}
+/>
+```
+
+### Handling selected values in state
+
+```tsx
+"use client";
+import React, { useState } from "react";
+import MultiSelect from "@/components/form/MultiSelect";
+
+const multiOptions = [
+  { value: "marketing", text: "Marketing", selected: false },
+  { value: "development", text: "Development", selected: false },
+  { value: "design", text: "Design", selected: false },
+  { value: "sales", text: "Sales", selected: false },
+];
+
+export default function TeamSelector() {
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+
+  return (
+    <div>
+      <MultiSelect
+        label="Assign teams"
+        options={multiOptions}
+        defaultSelected={["marketing"]}
+        onChange={(values) => setSelectedTeams(values)}
+      />
+      <p className="mt-2 text-sm text-gray-500">
+        Selected: {selectedTeams.join(", ") || "None"}
+      </p>
+    </div>
+  );
+}
+```
+
+### Disabled state
+
+```tsx
+<MultiSelect
+  label="Disabled selector"
+  options={options}
+  defaultSelected={["1", "2"]}
+  disabled
+  onChange={() => {}}
+/>
+```
+
+## Behaviour
+
+- Clicking the trigger or the chevron icon opens or closes the dropdown.
+- Clicking an option in the dropdown toggles its selection. Selecting an already-selected option deselects it.
+- Clicking the `×` icon on a chip removes that option from the selection.
+- The `onChange` callback fires on every selection change with the full updated array.
+- When no options are selected, the trigger shows a `"Select option"` placeholder.
+
+## Source file
+
+`src/components/form/MultiSelect.tsx`

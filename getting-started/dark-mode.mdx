@@ -1,0 +1,173 @@
+---
+title: "Dark mode"
+description: "How TailAdmin implements class-based dark mode with Tailwind CSS v4 and a React context provider."
+---
+
+## Overview
+
+TailAdmin uses Tailwind CSS's **class-based dark mode strategy**. When the `dark` class is present on the `<html>` element, all `dark:` prefixed utilities become active across the entire page.
+
+The template ships with full dark mode coverage — every component, sidebar, header, and dashboard widget has matching `dark:` styles.
+
+## How the `dark:` prefix works
+
+Tailwind applies `dark:` utilities when an ancestor element carries the `dark` class. The custom variant is registered in `globals.css`:
+
+```css src/app/globals.css
+@custom-variant dark (&:is(.dark *));
+```
+
+With this in place, you can write a single element with both light and dark styles:
+
+```tsx
+<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+  Content
+</div>
+```
+
+When `.dark` is on `<html>`, the `dark:` classes take effect and the element switches to the dark palette.
+
+## ThemeContext
+
+Dark mode state is managed by `src/context/ThemeContext.tsx`. It persists the user's preference to `localStorage` and applies or removes the `dark` class on `document.documentElement`.
+
+```tsx src/context/ThemeContext.tsx
+"use client";
+
+import type React from "react";
+import { createContext, useState, useContext, useEffect } from "react";
+
+type Theme = "light" | "dark";
+
+type ThemeContextType = {
+  theme: Theme;
+  toggleTheme: () => void;
+};
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [theme, setTheme] = useState<Theme>("light");
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as Theme | null;
+    const initialTheme = savedTheme || "light";
+    setTheme(initialTheme);
+    setIsInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialized) {
+      localStorage.setItem("theme", theme);
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  }, [theme, isInitialized]);
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
+};
+```
+
+## Registering the provider
+
+`ThemeProvider` wraps the entire app in the root layout:
+
+```tsx src/app/layout.tsx
+import { ThemeProvider } from '@/context/ThemeContext';
+import { SidebarProvider } from '@/context/SidebarContext';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className={`${outfit.className} dark:bg-gray-900`}>
+        <ThemeProvider>
+          <SidebarProvider>{children}</SidebarProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+## Toggling dark mode
+
+Call `useTheme` in any client component to read the current theme or toggle it:
+
+```tsx
+"use client";
+
+import { useTheme } from "@/context/ThemeContext";
+
+export default function DarkModeToggle() {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <button onClick={toggleTheme}>
+      {theme === "dark" ? "Switch to light" : "Switch to dark"}
+    </button>
+  );
+}
+```
+
+## Dark mode in components
+
+Every component in TailAdmin pairs its light-mode classes with `dark:` counterparts. Below is an example from the `Button` component's outline variant:
+
+```tsx src/components/ui/button/Button.tsx
+const variantClasses = {
+  primary:
+    "bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300",
+  outline:
+    "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 "
+    + "dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 "
+    + "dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
+};
+```
+
+The sidebar menu items follow the same pattern using custom utility classes defined in `globals.css`:
+
+```css
+@utility menu-item-active {
+  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility menu-item-inactive {
+  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
+}
+```
+
+## Admin layout dark background
+
+The admin layout applies a dark background to the main content area through the root `<body>` tag:
+
+```tsx
+<body className={`${outfit.className} dark:bg-gray-900`}>
+```
+
+Individual cards, panels, and sidebars layer their own `dark:bg-*` overrides on top of this base.
+
+<Tip>
+  When you build new components, always pair every background, border, and text color class with its `dark:` counterpart to keep the template consistent across both themes.
+</Tip>

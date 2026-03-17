@@ -1,0 +1,148 @@
+---
+title: "TypeScript"
+description: "TypeScript configuration, strict mode, path aliases, and typed component patterns used in TailAdmin."
+---
+
+## TypeScript configuration
+
+TailAdmin ships with TypeScript enabled and configured for strict type checking. The `tsconfig.json` at the project root defines the compiler settings:
+
+```json tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}
+```
+
+## Key settings explained
+
+| Option | Value | Effect |
+|---|---|---|
+| `strict` | `true` | Enables all strict type-checking flags, including `strictNullChecks` and `noImplicitAny` |
+| `target` | `ES2017` | Compiles to ES2017 syntax, compatible with all modern browsers |
+| `moduleResolution` | `bundler` | Uses Next.js/webpack module resolution rules |
+| `noEmit` | `true` | TypeScript only type-checks; Next.js handles the actual compilation |
+| `incremental` | `true` | Speeds up subsequent type-checking passes by caching results |
+| `resolveJsonModule` | `true` | Allows importing `.json` files with full type inference |
+| `isolatedModules` | `true` | Ensures each file can be safely transpiled in isolation |
+
+## Path alias: `@/*`
+
+The `paths` option maps `@/*` to `./src/*`, so you can import any file under `src/` using the `@/` prefix instead of relative paths.
+
+```tsx
+// Without alias
+import { useTheme } from "../../../context/ThemeContext";
+
+// With alias
+import { useTheme } from "@/context/ThemeContext";
+```
+
+This works for any depth of nesting and keeps imports readable across the entire codebase:
+
+```tsx
+import Button from "@/components/ui/button/Button";
+import { useSidebar } from "@/context/SidebarContext";
+import { GridIcon } from "@/icons/index";
+```
+
+## Typed component props
+
+All components in TailAdmin define their props with TypeScript interfaces. The `Button` component is a representative example:
+
+```tsx src/components/ui/button/Button.tsx
+import React, { ReactNode } from "react";
+
+interface ButtonProps {
+  children: ReactNode;    // Button text or content
+  size?: "sm" | "md";    // Button size
+  variant?: "primary" | "outline"; // Button variant
+  startIcon?: ReactNode; // Icon before the text
+  endIcon?: ReactNode;   // Icon after the text
+  onClick?: () => void;  // Click handler
+  disabled?: boolean;    // Disabled state
+  className?: string;    // Additional CSS classes
+}
+
+const Button: React.FC<ButtonProps> = ({
+  children,
+  size = "md",
+  variant = "primary",
+  startIcon,
+  endIcon,
+  onClick,
+  className = "",
+  disabled = false,
+}) => {
+  // ...
+};
+```
+
+All optional props use `?` and have sensible defaults applied in the destructuring. This pattern is used consistently across the component library.
+
+## SVG type declarations
+
+The file `src/svg.d.ts` provides TypeScript types for SVG files imported as React components via `@svgr/webpack`:
+
+```ts src/svg.d.ts
+// svg.d.ts
+declare module "*.svg" {
+  import * as React from "react";
+  export const ReactComponent: React.FunctionComponent<
+    React.SVGProps<SVGSVGElement> & { title?: string }
+  >;
+  const src: string;
+  export default src;
+}
+```
+
+This means you can import any SVG file and use it as either a React component or a plain image URL:
+
+```tsx
+import LogoIcon from "@/icons/logo.svg";
+
+// As a React component
+<LogoIcon className="h-6 w-6" />
+
+// As an image src
+<img src={LogoIcon} alt="Logo" />
+```
+
+## Next.js TypeScript plugin
+
+The `plugins` field in `tsconfig.json` includes the Next.js TypeScript plugin:
+
+```json
+"plugins": [{ "name": "next" }]
+```
+
+This plugin enhances editor tooling with Next.js-specific type information, such as warnings for incorrect usage of `"use client"` and `"use server"` directives, and improved auto-complete for Next.js APIs.
+
+<Note>
+  The `.next/dev/types/**/*.ts` entry in `include` ensures that generated types from the Next.js dev server (such as route types) are picked up automatically.
+</Note>

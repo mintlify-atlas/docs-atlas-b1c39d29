@@ -1,0 +1,128 @@
+---
+title: "Project structure"
+description: "An overview of the TailAdmin directory layout and the Next.js App Router conventions used throughout the template."
+---
+
+## Directory overview
+
+```
+free-nextjs-admin-dashboard/
+├── src/
+│   ├── app/                    # Next.js App Router pages and layouts
+│   │   ├── (admin)/            # Admin route group (with sidebar + header)
+│   │   │   ├── (others-pages)/ # Chart, form, table, and misc pages
+│   │   │   ├── (ui-elements)/  # UI element showcase pages
+│   │   │   ├── layout.tsx      # Admin shell layout
+│   │   │   └── page.tsx        # Dashboard home page (/)
+│   │   ├── (full-width-pages)/ # Pages without the admin sidebar
+│   │   │   ├── (auth)/         # Sign in and sign up pages
+│   │   │   └── (error-pages)/  # 404 and error pages
+│   │   ├── globals.css         # Global styles and Tailwind CSS v4 theme
+│   │   └── layout.tsx          # Root layout (fonts, providers)
+│   ├── components/             # Reusable UI components
+│   ├── context/                # React context providers
+│   │   ├── SidebarContext.tsx
+│   │   └── ThemeContext.tsx
+│   ├── hooks/                  # Custom React hooks
+│   │   ├── useGoBack.ts
+│   │   └── useModal.ts
+│   ├── icons/                  # SVG icon components
+│   ├── layout/                 # Top-level layout components
+│   │   ├── AppHeader.tsx
+│   │   ├── AppSidebar.tsx
+│   │   ├── Backdrop.tsx
+│   │   └── SidebarWidget.tsx
+│   └── svg.d.ts                # SVG module type declaration
+├── next.config.ts              # Next.js configuration
+├── postcss.config.js           # PostCSS / Tailwind CSS v4 config
+├── tsconfig.json               # TypeScript configuration
+└── package.json
+```
+
+## Top-level source directories
+
+### `src/app`
+
+All pages and layouts live here. TailAdmin uses the **Next.js App Router**, so every folder under `app/` maps to a URL segment, and each `page.tsx` file renders a route.
+
+### `src/components`
+
+Reusable React components organized by feature area. Sub-directories include `ui/` for generic UI elements (buttons, alerts, badges, modals), `charts/` for ApexCharts wrappers, `form/` for form inputs, `ecommerce/` for dashboard widgets, and more.
+
+### `src/layout`
+
+Top-level layout components that make up the application shell:
+
+- **`AppSidebar.tsx`** — Collapsible navigation sidebar with support for nested sub-menus.
+- **`AppHeader.tsx`** — Top header bar with search, notifications, and user menu.
+- **`Backdrop.tsx`** — Mobile overlay that closes the sidebar when tapped.
+- **`SidebarWidget.tsx`** — Promotional widget rendered at the bottom of the sidebar.
+
+### `src/hooks`
+
+Custom React hooks used across the template:
+
+- **`useModal.ts`** — Manages open/close state for modal dialogs.
+- **`useGoBack.ts`** — Navigates back in browser history.
+
+### `src/context`
+
+React context providers that wrap the entire application:
+
+- **`ThemeContext.tsx`** — Manages light/dark theme state and persists the preference to `localStorage`.
+- **`SidebarContext.tsx`** — Manages sidebar expanded, collapsed, hovered, and mobile-open states.
+
+### `src/icons`
+
+SVG icons imported as React components via `@svgr/webpack`. The `svg.d.ts` file in `src/` provides TypeScript types for SVG imports.
+
+## Route groups
+
+TailAdmin uses Next.js **route groups** (folders wrapped in parentheses) to share layouts between pages without affecting the URL structure.
+
+### `(admin)`
+
+All standard dashboard pages live inside this group. It applies `src/app/(admin)/layout.tsx`, which renders the `AppSidebar`, `AppHeader`, and `Backdrop` around every child page.
+
+```
+src/app/(admin)/
+├── (others-pages)/
+│   ├── (chart)/        # /line-chart, /bar-chart
+│   ├── (forms)/        # /form-elements
+│   ├── (tables)/       # /basic-tables
+│   ├── blank/          # /blank
+│   ├── calendar/       # /calendar
+│   └── profile/        # /profile
+├── (ui-elements)/
+│   ├── alerts/         # /alerts
+│   ├── avatars/        # /avatars
+│   ├── badge/          # /badge
+│   ├── buttons/        # /buttons
+│   ├── images/         # /images
+│   ├── modals/         # /modals
+│   └── videos/         # /videos
+├── layout.tsx
+└── page.tsx            # / (dashboard home)
+```
+
+### `(full-width-pages)`
+
+Pages that render without the admin sidebar, such as authentication and error screens. These use their own minimal layout defined in `src/app/(full-width-pages)/layout.tsx`.
+
+```
+src/app/(full-width-pages)/
+├── (auth)/
+│   ├── signin/         # /signin
+│   └── signup/         # /signup
+└── (error-pages)/
+    └── error-404/      # /error-404
+```
+
+## File conventions
+
+| File | Purpose |
+|---|---|
+| `layout.tsx` | Wraps all sibling and child pages with a shared UI shell |
+| `page.tsx` | Renders the UI for a specific route |
+| `not-found.tsx` | Custom 404 page shown when no route matches |
+| `globals.css` | Global CSS, Tailwind CSS v4 `@theme` tokens, and third-party overrides |

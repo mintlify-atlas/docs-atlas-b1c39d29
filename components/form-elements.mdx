@@ -1,0 +1,666 @@
+---
+title: "Form elements"
+description: "A complete set of accessible form primitives — inputs, labels, checkboxes, radio buttons, switches, file uploads, and text areas — styled with Tailwind CSS and fully dark-mode aware."
+---
+
+## Overview
+
+TailAdmin ships a suite of composable form primitives that cover every common form pattern. Each component is styled with Tailwind CSS utility classes, supports dark mode automatically, and exposes consistent state props (`disabled`, `error`, `success`, `hint`) so you can build validated, accessible forms without writing custom CSS.
+
+The available components are:
+
+<Columns cols={2}>
+  <Card title="Input" icon="text-cursor-input">
+    Single-line text field with type support, validation states, and hint text.
+  </Card>
+  <Card title="Label" icon="tag">
+    Accessible form label with a paired `htmlFor` attribute.
+  </Card>
+  <Card title="TextArea" icon="align-left">
+    Multi-line text input with row configuration and validation states.
+  </Card>
+  <Card title="Checkbox" icon="square-check">
+    Custom-styled checkbox with a checked SVG indicator.
+  </Card>
+  <Card title="Radio" icon="circle-dot">
+    Full-size and small radio button variants for option groups.
+  </Card>
+  <Card title="Switch" icon="toggle-right">
+    Animated toggle switch with blue and gray color themes.
+  </Card>
+  <Card title="FileInput" icon="upload">
+    Styled native file picker input.
+  </Card>
+  <Card title="Dropzone" icon="cloud-upload">
+    Drag-and-drop file upload area powered by `react-dropzone`.
+  </Card>
+</Columns>
+
+## Label
+
+### Import
+
+```tsx
+import Label from "@/components/form/Label";
+```
+
+### Props
+
+<ParamField path="htmlFor" type="string">
+  Associates the label with a form control by matching its `id`. Pass the same value you use for the input's `id`.
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  The visible label text or any inline content.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes merged onto the `<label>` element via `twMerge`. Use this to override the default bottom margin.
+</ParamField>
+
+### Usage
+
+```tsx
+<Label htmlFor="email">Email address</Label>
+<Input id="email" type="email" placeholder="info@example.com" />
+```
+
+## Input
+
+### Import
+
+```tsx
+import Input from "@/components/form/input/InputField";
+```
+
+### Props
+
+<ParamField path="type" type="text | number | email | password | date | time | string" default="text">
+  The native HTML input type. Accepts any valid `type` value.
+</ParamField>
+
+<ParamField path="id" type="string">
+  The `id` attribute. Pair with a `Label` component's `htmlFor` prop.
+</ParamField>
+
+<ParamField path="name" type="string">
+  The `name` attribute used when submitting forms.
+</ParamField>
+
+<ParamField path="placeholder" type="string">
+  Placeholder text shown when the field is empty.
+</ParamField>
+
+<ParamField path="defaultValue" type="string | number">
+  The uncontrolled initial value of the input.
+</ParamField>
+
+<ParamField path="onChange" type="(e: React.ChangeEvent<HTMLInputElement>) => void">
+  Callback fired on every value change.
+</ParamField>
+
+<ParamField path="min" type="string">
+  Minimum value for `number` and `date` type inputs.
+</ParamField>
+
+<ParamField path="max" type="string">
+  Maximum value for `number` and `date` type inputs.
+</ParamField>
+
+<ParamField path="step" type="number">
+  Step interval for `number` type inputs.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Renders the input in a non-interactive disabled state with a `cursor-not-allowed` cursor.
+</ParamField>
+
+<ParamField path="success" type="boolean" default="false">
+  Applies green success styling to the border and hint text.
+</ParamField>
+
+<ParamField path="error" type="boolean" default="false">
+  Applies red error styling to the border and hint text.
+</ParamField>
+
+<ParamField path="hint" type="string">
+  Helper text displayed below the input. The color adjusts automatically to match the active state (`error`, `success`, or neutral gray).
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes appended to the input element.
+</ParamField>
+
+### Basic usage
+
+```tsx
+import Label from "@/components/form/Label";
+import Input from "@/components/form/input/InputField";
+
+<div>
+  <Label htmlFor="username">Username</Label>
+  <Input id="username" type="text" placeholder="Enter username" />
+</div>
+```
+
+### Input types
+
+<CodeGroup>
+
+```tsx Text input
+<Input type="text" placeholder="Enter text" />
+```
+
+```tsx Email input
+<Input type="email" placeholder="info@example.com" />
+```
+
+```tsx Password input
+<Input type="password" placeholder="Enter your password" />
+```
+
+```tsx Number input
+<Input type="number" min="0" max="100" step={1} />
+```
+
+```tsx Time input
+<Input type="time" id="tm" name="tm" />
+```
+
+</CodeGroup>
+
+### Validation states
+
+Use `error` and `success` props to reflect field validity. Pair with a `hint` prop to display contextual helper text below the field.
+
+```tsx
+"use client";
+import React, { useState } from "react";
+import Label from "@/components/form/Label";
+import Input from "@/components/form/input/InputField";
+
+export default function EmailField() {
+  const [email, setEmail] = useState(");
+  const [isValid, setIsValid] = useState(true);
+
+  const validate = (value: string) => {
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    setIsValid(valid);
+  };
+
+  return (
+    <div>
+      <Label>Email</Label>
+      <Input
+        type="email"
+        defaultValue={email}
+        error={!isValid}
+        success={isValid && email.length > 0}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          validate(e.target.value);
+        }}
+        placeholder="Enter your email"
+        hint={!isValid ? "This is an invalid email address." : "}
+      />
+    </div>
+  );
+}
+```
+
+### Disabled state
+
+```tsx
+<Label>Email</Label>
+<Input
+  type="text"
+  defaultValue="disabled@example.com"
+  disabled={true}
+  hint="This field is disabled."
+/>
+```
+
+## Switch
+
+### Import
+
+```tsx
+import Switch from "@/components/form/switch/Switch";
+```
+
+<Note>
+  `Switch` uses `useState` internally and is a Client Component. Any page that renders it directly must include `"use client"` or wrap the switch in a separate client boundary file.
+</Note>
+
+### Props
+
+<ParamField path="label" type="string" required>
+  Text rendered next to the toggle knob.
+</ParamField>
+
+<ParamField path="defaultChecked" type="boolean" default="false">
+  The initial checked state of the switch.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Prevents toggling and renders the switch with a muted background.
+</ParamField>
+
+<ParamField path="onChange" type="(checked: boolean) => void">
+  Callback fired with the new checked state whenever the switch is toggled.
+</ParamField>
+
+<ParamField path="color" type="blue | gray" default="blue">
+  Controls the active background color of the switch track.
+
+  - `blue` — brand-500 when checked
+  - `gray` — gray-800 when checked
+</ParamField>
+
+### Usage
+
+```tsx
+"use client";
+import Switch from "@/components/form/switch/Switch";
+
+export default function NotificationsToggle() {
+  return (
+    <Switch
+      label="Enable notifications"
+      defaultChecked={true}
+      onChange={(checked) => console.log("Switch is now:", checked ? "ON" : "OFF")}
+    />
+  );
+}
+```
+
+### Color variants
+
+```tsx
+{/* Blue (default) */}
+<Switch label="Default" defaultChecked={true} />
+<Switch label="Checked" defaultChecked={true} color="blue" />
+<Switch label="Disabled" disabled={true} />
+
+{/* Gray */}
+<Switch label="Default" defaultChecked={true} color="gray" />
+<Switch label="Checked" defaultChecked={true} color="gray" />
+<Switch label="Disabled" disabled={true} color="gray" />
+```
+
+## Checkbox
+
+### Import
+
+```tsx
+import Checkbox from "@/components/form/input/Checkbox";
+```
+
+### Props
+
+<ParamField path="checked" type="boolean" required>
+  Controls the checked state. This is a controlled component — always pair with an `onChange` handler.
+</ParamField>
+
+<ParamField path="onChange" type="(checked: boolean) => void" required>
+  Callback fired with the new boolean checked state.
+</ParamField>
+
+<ParamField path="label" type="string">
+  Optional text label rendered to the right of the checkbox.
+</ParamField>
+
+<ParamField path="id" type="string">
+  The `id` attribute applied to the underlying `<input>` element.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Renders the checkbox with reduced opacity and a `cursor-not-allowed` cursor.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes applied to the hidden checkbox input.
+</ParamField>
+
+### Usage
+
+```tsx
+"use client";
+import React, { useState } from "react";
+import Checkbox from "@/components/form/input/Checkbox";
+
+export default function TermsCheckbox() {
+  const [accepted, setAccepted] = useState(false);
+
+  return (
+    <div className="flex items-center gap-3">
+      <Checkbox
+        checked={accepted}
+        onChange={setAccepted}
+        label="I agree to the terms"
+      />
+    </div>
+  );
+}
+```
+
+### States
+
+```tsx
+{/* Unchecked */}
+<Checkbox checked={false} onChange={setChecked} />
+
+{/* Checked with label */}
+<Checkbox checked={true} onChange={setChecked} label="Checked" />
+
+{/* Disabled */}
+<Checkbox checked={false} onChange={setChecked} disabled label="Disabled" />
+```
+
+## Radio buttons
+
+TailAdmin provides two radio button components: `Radio` for standard use and `RadioSm` for a smaller variant.
+
+### Import
+
+```tsx
+import Radio from "@/components/form/input/Radio";
+import RadioSm from "@/components/form/input/RadioSm";
+```
+
+### Radio props
+
+<ParamField path="id" type="string" required>
+  Unique ID for the radio input. Used by the wrapping `<label>`'s `htmlFor`.
+</ParamField>
+
+<ParamField path="name" type="string" required>
+  The radio group name. All radios sharing the same `name` form a mutually exclusive group.
+</ParamField>
+
+<ParamField path="value" type="string" required>
+  The value submitted when this radio is selected.
+</ParamField>
+
+<ParamField path="checked" type="boolean" required>
+  Whether this radio is currently selected. Compare `value` against the selected group value.
+</ParamField>
+
+<ParamField path="label" type="string" required>
+  The visible label text.
+</ParamField>
+
+<ParamField path="onChange" type="(value: string) => void" required>
+  Callback fired with this radio's `value` when selected.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Prevents selection and renders muted label and circle styles. (`Radio` only)
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes on the label wrapper.
+</ParamField>
+
+### Usage
+
+```tsx
+"use client";
+import React, { useState } from "react";
+import Radio from "@/components/form/input/Radio";
+
+export default function PlanSelector() {
+  const [selectedValue, setSelectedValue] = useState<string>("option2");
+
+  return (
+    <div className="flex flex-wrap items-center gap-8">
+      <Radio
+        id="radio1"
+        name="group1"
+        value="option1"
+        checked={selectedValue === "option1"}
+        onChange={setSelectedValue}
+        label="Default"
+      />
+      <Radio
+        id="radio2"
+        name="group1"
+        value="option2"
+        checked={selectedValue === "option2"}
+        onChange={setSelectedValue}
+        label="Selected"
+      />
+      <Radio
+        id="radio3"
+        name="group1"
+        value="option3"
+        checked={selectedValue === "option3"}
+        onChange={setSelectedValue}
+        label="Disabled"
+        disabled={true}
+      />
+    </div>
+  );
+}
+```
+
+### Small variant
+
+`RadioSm` uses a 16×16 px circle instead of 20×20 px. The props are identical except it does not have a `disabled` prop.
+
+```tsx
+import RadioSm from "@/components/form/input/RadioSm";
+
+<RadioSm
+  id="sm-radio1"
+  name="size-group"
+  value="small"
+  checked={selected === "small"}
+  onChange={setSelected}
+  label="Small option"
+/>
+```
+
+## File input
+
+### Import
+
+```tsx
+import FileInput from "@/components/form/input/FileInput";
+```
+
+### Props
+
+<ParamField path="onChange" type="(event: React.ChangeEvent<HTMLInputElement>) => void">
+  Callback fired when the user selects a file. Access the chosen file via `event.target.files?.[0]`.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes appended to the input.
+</ParamField>
+
+### Usage
+
+```tsx
+import Label from "@/components/form/Label";
+import FileInput from "@/components/form/input/FileInput";
+
+export default function FileUpload() {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log("Selected file:", file.name);
+    }
+  };
+
+  return (
+    <div>
+      <Label>Upload file</Label>
+      <FileInput onChange={handleFileChange} />
+    </div>
+  );
+}
+```
+
+## Dropzone
+
+The `DropzoneComponent` provides a drag-and-drop file upload area powered by `react-dropzone`. It accepts PNG, JPEG, WebP, and SVG files.
+
+<Note>
+  `react-dropzone` must be installed. Run `npm install react-dropzone` if it is not already present in your project.
+</Note>
+
+### Import
+
+```tsx
+import DropzoneComponent from "@/components/form/form-elements/DropZone";
+```
+
+### Usage
+
+```tsx
+"use client";
+import { useDropzone } from "react-dropzone";
+
+const onDrop = (acceptedFiles: File[]) => {
+  console.log("Files dropped:", acceptedFiles);
+};
+
+const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  onDrop,
+  accept: {
+    "image/png": [],
+    "image/jpeg": [],
+    "image/webp": [],
+    "image/svg+xml": [],
+  },
+});
+
+return (
+  <div className="transition border border-gray-300 border-dashed cursor-pointer rounded-xl hover:border-brand-500">
+    <form
+      {...getRootProps()}
+      className={`dropzone rounded-xl border-dashed border-gray-300 p-7 lg:p-10 ${
+        isDragActive
+          ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
+          : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
+      }`}
+    >
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center">
+        <h4 className="font-semibold text-gray-800">
+          {isDragActive ? "Drop Files Here" : "Drag & Drop Files Here"}
+        </h4>
+        <span className="text-sm text-gray-700">Browse File</span>
+      </div>
+    </form>
+  </div>
+);
+```
+
+## TextArea
+
+### Import
+
+```tsx
+import TextArea from "@/components/form/input/TextArea";
+```
+
+### Props
+
+<ParamField path="placeholder" type="string" default="Enter your message">
+  Placeholder text displayed when the textarea is empty.
+</ParamField>
+
+<ParamField path="rows" type="number" default="3">
+  The number of visible text rows.
+</ParamField>
+
+<ParamField path="value" type="string" default="">
+  The controlled value of the textarea.
+</ParamField>
+
+<ParamField path="onChange" type="(value: string) => void">
+  Callback fired with the new string value on every keystroke.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Renders the textarea non-interactive with a light background and `cursor-not-allowed`.
+</ParamField>
+
+<ParamField path="error" type="boolean" default="false">
+  Applies error-state ring and border color, and styles the `hint` text red.
+</ParamField>
+
+<ParamField path="hint" type="string">
+  Helper text displayed below the textarea. Color matches the active state.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes appended to the `<textarea>` element.
+</ParamField>
+
+### Usage
+
+```tsx
+"use client";
+import React, { useState } from "react";
+import Label from "@/components/form/Label";
+import TextArea from "@/components/form/input/TextArea";
+
+export default function MessageField() {
+  const [message, setMessage] = useState(");
+
+  return (
+    <div>
+      <Label>Description</Label>
+      <TextArea
+        value={message}
+        onChange={(value) => setMessage(value)}
+        rows={6}
+      />
+    </div>
+  );
+}
+```
+
+### Validation states
+
+<CodeGroup>
+
+```tsx Default
+<TextArea
+  value={message}
+  onChange={(value) => setMessage(value)}
+  rows={6}
+/>
+```
+
+```tsx Disabled
+<TextArea rows={6} disabled />
+```
+
+```tsx Error with hint
+<TextArea
+  rows={6}
+  value={message}
+  error
+  onChange={(value) => setMessage(value)}
+  hint="Please enter a valid message."
+/>
+```
+
+</CodeGroup>
+
+## Source files
+
+- `src/components/form/Label.tsx`
+- `src/components/form/Form.tsx`
+- `src/components/form/input/InputField.tsx`
+- `src/components/form/input/Checkbox.tsx`
+- `src/components/form/input/Radio.tsx`
+- `src/components/form/input/RadioSm.tsx`
+- `src/components/form/input/FileInput.tsx`
+- `src/components/form/input/TextArea.tsx`
+- `src/components/form/switch/Switch.tsx`
+- `src/components/form/form-elements/DropZone.tsx`

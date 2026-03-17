@@ -1,0 +1,118 @@
+---
+title: "Videos"
+description: "A responsive YouTube embed component that supports four aspect ratios: 16:9, 4:3, 21:9, and 1:1."
+---
+
+## Overview
+
+TailAdmin provides a `YouTubeEmbed` component that wraps a YouTube iframe in a responsive container. The component maps a named aspect ratio to a Tailwind CSS aspect-ratio utility class, ensuring the video always fills its container at the correct proportions on any screen size.
+
+## Import
+
+```tsx
+import YouTubeEmbed from "@/components/ui/video/YouTubeEmbed";
+```
+
+## Props
+
+<ParamField path="videoId" type="string" required>
+  The YouTube video ID — the part after `v=` in a standard YouTube URL. For example, for `https://www.youtube.com/watch?v=dQw4w9WgXcQ` the ID is `dQw4w9WgXcQ`.
+</ParamField>
+
+<ParamField path="aspectRatio" type="16:9 | 4:3 | 21:9 | 1:1" default="16:9">
+  Controls the aspect ratio of the embed container.
+
+  | Value | Tailwind class | Use case |
+  |-------|---------------|----------|
+  | `16:9` | `aspect-video` | Standard widescreen — the most common ratio |
+  | `4:3` | `aspect-4/3` | Older video formats |
+  | `21:9` | `aspect-21/9` | Cinematic / ultrawide content |
+  | `1:1` | `aspect-square` | Square social-style videos |
+</ParamField>
+
+<ParamField path="title" type="string" default="YouTube video">
+  The accessible title of the `<iframe>` element. Provide a meaningful description for screen readers.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes merged onto the outer container `<div>`.
+</ParamField>
+
+## Usage
+
+### Default 16:9 embed
+
+```tsx
+<YouTubeEmbed videoId="dQw4w9WgXcQ" />
+```
+
+### All aspect ratios
+
+```tsx
+<YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="16:9" title="Product demo" />
+<YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="4:3"  title="Tutorial" />
+<YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="21:9" title="Cinematic intro" />
+<YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="1:1"  title="Social clip" />
+```
+
+### Two-column video grid
+
+The `VideosExample` component in the template shows how to arrange multiple embeds in a responsive two-column grid:
+
+```tsx
+import YouTubeEmbed from "@/components/ui/video/YouTubeEmbed";
+
+export default function VideosExample() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:gap-6 xl:grid-cols-2">
+      <div className="space-y-5 sm:space-y-6">
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" />
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="4:3" />
+      </div>
+      <div className="space-y-5 sm:space-y-6">
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="21:9" />
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="1:1" />
+      </div>
+    </div>
+  );
+}
+```
+
+### Custom container styling
+
+Use `className` to add a border, shadow, or rounded corners to the embed container:
+
+```tsx
+<YouTubeEmbed
+  videoId="dQw4w9WgXcQ"
+  aspectRatio="16:9"
+  title="Dashboard walkthrough"
+  className="rounded-2xl shadow-lg"
+/>
+```
+
+## How it works
+
+The component renders an `<iframe>` inside a sized container div. The outer `<div>` uses one of Tailwind's aspect-ratio utilities to maintain proportions, while the iframe fills the full width and height of that container.
+
+```tsx
+<div className={`overflow-hidden rounded-lg ${aspectRatioClass} ${className}`}>
+  <iframe
+    src={`https://www.youtube.com/embed/${videoId}`}
+    title={title}
+    frameBorder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+    className="w-full h-full"
+  />
+</div>
+```
+
+<Tip>
+  To extract a video ID from a full YouTube URL, take the value of the `v` query parameter: `https://www.youtube.com/watch?v=<VIDEO_ID>` or, for short links, `https://youtu.be/<VIDEO_ID>`.
+</Tip>
+
+## Source files
+
+- `src/components/ui/video/YouTubeEmbed.tsx`
+- `src/components/ui/video/VideosExample.tsx`

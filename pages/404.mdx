@@ -1,0 +1,154 @@
+---
+title: "404 Page"
+description: "The custom not-found page for TailAdmin, implemented using Next.js App Router's not-found.tsx convention with a decorative grid background and a link back to home."
+---
+
+## Overview
+
+When a user navigates to a route that does not exist, Next.js App Router automatically renders `src/app/not-found.tsx`. TailAdmin ships a custom version of this file that displays a large **ERROR** heading, an SVG 404 illustration (with separate light and dark variants), a friendly message, and a **Back to Home Page** button.
+
+---
+
+## Source
+
+```tsx
+// src/app/not-found.tsx
+import GridShape from "@/components/common/GridShape";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+
+export default function NotFound() {
+  return (
+    <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">
+      <GridShape />
+      <div className="mx-auto w-full max-w-[242px] text-center sm:max-w-[472px]">
+        <h1 className="mb-8 font-bold text-gray-800 text-title-md dark:text-white/90 xl:text-title-2xl">
+          ERROR
+        </h1>
+
+        <Image
+          src="/images/error/404.svg"
+          alt="404"
+          className="dark:hidden"
+          width={472}
+          height={152}
+        />
+        <Image
+          src="/images/error/404-dark.svg"
+          alt="404"
+          className="hidden dark:block"
+          width={472}
+          height={152}
+        />
+
+        <p className="mt-10 mb-6 text-base text-gray-700 dark:text-gray-400 sm:text-lg">
+          We can&apos;t seem to find the page you are looking for!
+        </p>
+
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+        >
+          Back to Home Page
+        </Link>
+      </div>
+
+      {/* Footer */}
+      <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">
+        &copy; {new Date().getFullYear()} - TailAdmin
+      </p>
+    </div>
+  );
+}
+```
+
+---
+
+## Next.js App Router Convention
+
+Next.js App Router treats `not-found.tsx` as a special file. When you call the `notFound()` helper from `next/navigation` anywhere in your application, or when a dynamic segment cannot be resolved, the router automatically renders the nearest `not-found.tsx` up the file-system tree.
+
+<Note>
+  `not-found.tsx` at the root of `src/app/` is the **global** 404 handler. You can also create scoped `not-found.tsx` files inside nested route segments (e.g. `src/app/(admin)/products/not-found.tsx`) to show segment-specific error messages.
+</Note>
+
+### Triggering `notFound()` manually
+
+```tsx
+import { notFound } from "next/navigation";
+
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  const product = await fetchProduct(params.id);
+
+  if (!product) {
+    notFound(); // renders not-found.tsx
+  }
+
+  return <div>{product.name}</div>;
+}
+```
+
+---
+
+## Page Structure
+
+| Element | Description |
+|---|---|
+| `GridShape` | Decorative dot-grid background component |
+| `ERROR` heading | Large bold title using `text-title-md` / `xl:text-title-2xl` |
+| `404.svg` / `404-dark.svg` | Theme-aware SVG illustrations in `/public/images/error/` |
+| Error message | Short human-friendly explanation |
+| Back to Home button | `<Link href="/">` styled as a bordered button |
+| Footer | Copyright line pinned to the bottom of the viewport |
+
+---
+
+## Customizing the 404 Page
+
+### Change the message
+
+Edit the `<p>` tag text directly in `not-found.tsx`:
+
+```tsx
+<p className="mt-10 mb-6 text-base text-gray-700 dark:text-gray-400 sm:text-lg">
+  This page has moved or no longer exists. Try searching instead.
+</p>
+```
+
+### Change the illustration
+
+Replace the SVG files at:
+
+```
+public/images/error/404.svg       ← light mode
+public/images/error/404-dark.svg  ← dark mode
+```
+
+Keep the same filenames so the existing `<Image>` tags continue to work, or update the `src` props if you use different filenames.
+
+### Add a search input
+
+Convert `not-found.tsx` to a client component (`"use client"`) and add a search field above the back-to-home button:
+
+```tsx
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+// Inside the component:
+const [query, setQuery] = useState("");
+const router = useRouter();
+
+<input
+  value={query}
+  onChange={(e) => setQuery(e.target.value)}
+  onKeyDown={(e) => e.key === "Enter" && router.push(`/search?q=${query}`)}
+  placeholder="Search..."
+  className="mt-4 rounded-lg border border-gray-300 px-4 py-2 text-sm"
+/>
+```
+
+<Warning>
+  Avoid adding `export const metadata` to a `"use client"` component — metadata exports only work in Server Components. Keep metadata in a separate parent layout or remove it when converting to a client component.
+</Warning>

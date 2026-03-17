@@ -1,0 +1,221 @@
+---
+title: "Colors"
+description: "Customize the TailAdmin color system using Tailwind CSS v4 CSS-first configuration."
+---
+
+## Overview
+
+TailAdmin uses **Tailwind CSS v4**, which replaces `tailwind.config.js` with a CSS-first configuration approach. All colors are defined as CSS custom properties inside the `@theme` block in `src/app/globals.css`. Tailwind reads these variables and automatically generates utility classes like `bg-brand-500`, `text-gray-900`, and `border-error-200`.
+
+<Note>
+  There is no `tailwind.config.js` in this project. Every color token lives in `src/app/globals.css` under the `@theme` directive.
+</Note>
+
+## Brand color scale
+
+The brand palette is TailAdmin's primary color system. It maps to a perceptual scale from 25 (near-white) to 950 (near-black), anchored at `#465fff` for the `500` step.
+
+```css src/app/globals.css
+@theme {
+  --color-brand-25:  #f2f7ff;
+  --color-brand-50:  #ecf3ff;
+  --color-brand-100: #dde9ff;
+  --color-brand-200: #c2d6ff;
+  --color-brand-300: #9cb9ff;
+  --color-brand-400: #7592ff;
+  --color-brand-500: #465fff;
+  --color-brand-600: #3641f5;
+  --color-brand-700: #2a31d8;
+  --color-brand-800: #252dae;
+  --color-brand-900: #262e89;
+  --color-brand-950: #161950;
+}
+```
+
+These map directly to Tailwind utilities:
+
+| CSS variable | Tailwind class examples |
+|---|---|
+| `--color-brand-500` | `bg-brand-500`, `text-brand-500`, `border-brand-500` |
+| `--color-brand-50` | `bg-brand-50`, `hover:bg-brand-50` |
+| `--color-brand-600` | `hover:bg-brand-600`, `focus:ring-brand-600` |
+
+## Gray scale
+
+The gray scale is used for text, borders, backgrounds, and surfaces throughout the template.
+
+```css src/app/globals.css
+@theme {
+  --color-gray-25:   #fcfcfd;
+  --color-gray-50:   #f9fafb;
+  --color-gray-100:  #f2f4f7;
+  --color-gray-200:  #e4e7ec;
+  --color-gray-300:  #d0d5dd;
+  --color-gray-400:  #98a2b3;
+  --color-gray-500:  #667085;
+  --color-gray-600:  #475467;
+  --color-gray-700:  #344054;
+  --color-gray-800:  #1d2939;
+  --color-gray-900:  #101828;
+  --color-gray-950:  #0c111d;
+  --color-gray-dark: #1a2231;
+}
+```
+
+The body background defaults to `bg-gray-50` in light mode and switches to `bg-gray-900` in dark mode.
+
+## Semantic color scales
+
+TailAdmin includes four semantic scales for status indicators, alerts, and feedback elements.
+
+<CodeGroup>
+
+```css success
+@theme {
+  --color-success-25:  #f6fef9;
+  --color-success-50:  #ecfdf3;
+  --color-success-100: #d1fadf;
+  --color-success-200: #a6f4c5;
+  --color-success-300: #6ce9a6;
+  --color-success-400: #32d583;
+  --color-success-500: #12b76a;
+  --color-success-600: #039855;
+  --color-success-700: #027a48;
+  --color-success-800: #05603a;
+  --color-success-900: #054f31;
+  --color-success-950: #053321;
+}
+```
+
+```css error
+@theme {
+  --color-error-25:  #fffbfa;
+  --color-error-50:  #fef3f2;
+  --color-error-100: #fee4e2;
+  --color-error-200: #fecdca;
+  --color-error-300: #fda29b;
+  --color-error-400: #f97066;
+  --color-error-500: #f04438;
+  --color-error-600: #d92d20;
+  --color-error-700: #b42318;
+  --color-error-800: #912018;
+  --color-error-900: #7a271a;
+  --color-error-950: #55160c;
+}
+```
+
+```css warning
+@theme {
+  --color-warning-25:  #fffcf5;
+  --color-warning-50:  #fffaeb;
+  --color-warning-100: #fef0c7;
+  --color-warning-200: #fedf89;
+  --color-warning-300: #fec84b;
+  --color-warning-400: #fdb022;
+  --color-warning-500: #f79009;
+  --color-warning-600: #dc6803;
+  --color-warning-700: #b54708;
+  --color-warning-800: #93370d;
+  --color-warning-900: #7a2e0e;
+  --color-warning-950: #4e1d09;
+}
+```
+
+</CodeGroup>
+
+## Additional palettes
+
+Two supplementary palettes are included for use in charts, badges, and extended UI elements.
+
+```css src/app/globals.css
+@theme {
+  /* Blue light */
+  --color-blue-light-25:  #f5fbff;
+  --color-blue-light-50:  #f0f9ff;
+  --color-blue-light-100: #e0f2fe;
+  --color-blue-light-200: #b9e6fe;
+  --color-blue-light-300: #7cd4fd;
+  --color-blue-light-400: #36bffa;
+  --color-blue-light-500: #0ba5ec;
+  --color-blue-light-600: #0086c9;
+  --color-blue-light-700: #026aa2;
+  --color-blue-light-800: #065986;
+  --color-blue-light-900: #0b4a6f;
+  --color-blue-light-950: #062c41;
+
+  /* Orange */
+  --color-orange-25:  #fffaf5;
+  --color-orange-50:  #fff6ed;
+  --color-orange-100: #ffead5;
+  --color-orange-200: #fddcab;
+  --color-orange-300: #feb273;
+  --color-orange-400: #fd853a;
+  --color-orange-500: #fb6514;
+  --color-orange-600: #ec4a0a;
+  --color-orange-700: #c4320a;
+  --color-orange-800: #9c2a10;
+  --color-orange-900: #7e2410;
+  --color-orange-950: #511c10;
+
+  /* One-off accent colors */
+  --color-theme-pink-500:   #ee46bc;
+  --color-theme-purple-500: #7a5af8;
+}
+```
+
+## Changing the primary brand color
+
+To replace the blue brand palette with your own color, update the `--color-brand-*` variables in `src/app/globals.css`. Every component that uses `bg-brand-500`, `text-brand-600`, or similar will update automatically.
+
+<Steps>
+  <Step title="Open globals.css">
+    Open `src/app/globals.css` and locate the brand color block inside `@theme`.
+  </Step>
+  <Step title="Replace the brand values">
+    Swap every `--color-brand-*` value with your own color scale. Keep the same number of stops (25 through 950) to maintain consistent contrast across states.
+
+    ```css src/app/globals.css
+    @theme {
+      --color-brand-25:  #fdf4ff;
+      --color-brand-50:  #fae8ff;
+      --color-brand-100: #f3d0fe;
+      --color-brand-200: #e9a8fc;
+      --color-brand-300: #d671f7;
+      --color-brand-400: #c042ef;
+      --color-brand-500: #a516d4; /* your primary */
+      --color-brand-600: #8b10b0;
+      --color-brand-700: #730d92;
+      --color-brand-800: #5e0c75;
+      --color-brand-900: #4a0a5c;
+      --color-brand-950: #2d0638;
+    }
+    ```
+  </Step>
+  <Step title="Verify the result">
+    Run `npm run dev` and check that buttons, active sidebar items, links, and focus rings all reflect the new color.
+  </Step>
+</Steps>
+
+<Tip>
+  Color names follow a numeric scale where **500 is the main interactive color**, lighter steps (50–300) are used for backgrounds and hover states, and darker steps (600–950) are used for pressed states and text.
+</Tip>
+
+## Utility class reference
+
+Every CSS variable registered under `--color-*` in the `@theme` block becomes available as a Tailwind utility class using the segment after `--color-` as the class name.
+
+```tsx
+{/* Backgrounds */}
+<div className="bg-brand-50 dark:bg-brand-500/[0.12]" />
+<div className="bg-gray-100 dark:bg-gray-800" />
+<div className="bg-success-50" />
+
+{/* Text */}
+<span className="text-brand-500 dark:text-brand-400" />
+<span className="text-gray-700 dark:text-gray-300" />
+<span className="text-error-600" />
+
+{/* Borders */}
+<input className="border-gray-300 focus:border-brand-500" />
+<div className="border-warning-200" />
+```

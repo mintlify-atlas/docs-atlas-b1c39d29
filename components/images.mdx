@@ -1,0 +1,190 @@
+---
+title: "Images"
+description: "Ready-made responsive image layouts built on Next.js Image — single full-width, two-column grid, and three-column grid."
+---
+
+## Overview
+
+TailAdmin includes three pre-built image layout components that wrap Next.js `Image` with responsive Tailwind CSS grid classes. Each component demonstrates a common dashboard image pattern — a single hero image, a two-column grid, and a three-column grid.
+
+All components use Next.js `<Image>` with explicit `width` and `height` values for optimal performance and automatic format optimisation.
+
+## Components
+
+<CardGroup cols={3}>
+  <Card title="ResponsiveImage">
+    A single full-width image with rounded corners and a subtle border.
+  </Card>
+  <Card title="TwoColumnImageGrid">
+    Two images arranged side-by-side on `sm` screens and wider.
+  </Card>
+  <Card title="ThreeColumnImageGrid">
+    Three images in a responsive grid: 1 column → 2 columns → 3 columns.
+  </Card>
+</CardGroup>
+
+## Import
+
+```tsx
+import ResponsiveImage from "@/components/ui/images/ResponsiveImage";
+import TwoColumnImageGrid from "@/components/ui/images/TwoColumnImageGrid";
+import ThreeColumnImageGrid from "@/components/ui/images/ThreeColumnImageGrid";
+```
+
+## `ResponsiveImage`
+
+Renders a single image at full container width with rounded corners (`rounded-xl`) and a gray border that switches to a darker border in dark mode.
+
+```tsx
+import Image from "next/image";
+
+export default function ResponsiveImage() {
+  return (
+    <div className="relative">
+      <div className="overflow-hidden">
+        <Image
+          src="/images/grid-image/image-01.png"
+          alt="Cover"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={1054}
+          height={600}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+<Note>
+  Swap the `src`, `width`, and `height` to point to your own image. Always provide a descriptive `alt` string.
+</Note>
+
+## `TwoColumnImageGrid`
+
+Two images in a `grid-cols-1` layout that switches to `grid-cols-2` on `sm` screens. The `gap-5` class adds consistent spacing between columns.
+
+```tsx
+import Image from "next/image";
+
+export default function TwoColumnImageGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <Image
+          src="/images/grid-image/image-02.png"
+          alt="Grid image left"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={517}
+          height={295}
+        />
+      </div>
+      <div>
+        <Image
+          src="/images/grid-image/image-03.png"
+          alt="Grid image right"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={517}
+          height={295}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+## `ThreeColumnImageGrid`
+
+Three images in a responsive grid: single column by default, two columns at `sm`, and three columns at `xl`.
+
+```tsx
+import Image from "next/image";
+
+export default function ThreeColumnImageGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div>
+        <Image
+          src="/images/grid-image/image-04.png"
+          alt="Grid image 1"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={338}
+          height={192}
+        />
+      </div>
+      <div>
+        <Image
+          src="/images/grid-image/image-05.png"
+          alt="Grid image 2"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={338}
+          height={192}
+        />
+      </div>
+      <div>
+        <Image
+          src="/images/grid-image/image-06.png"
+          alt="Grid image 3"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={338}
+          height={192}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+## Using Next.js `Image` directly
+
+The components above are examples. For your own pages, use the Next.js `<Image>` component directly:
+
+```tsx
+import Image from "next/image";
+
+<Image
+  src="/images/your-photo.png"
+  alt="Descriptive alt text"
+  width={800}
+  height={450}
+  className="w-full rounded-xl"
+/>
+```
+
+### Key props
+
+| Prop | Description |
+|------|-------------|
+| `src` | Path relative to `/public`, or an absolute URL for remote images. |
+| `alt` | Required. Descriptive text for accessibility and SEO. |
+| `width` | Intrinsic width in pixels. Used to compute aspect ratio. |
+| `height` | Intrinsic height in pixels. Used to compute aspect ratio. |
+| `sizes` | Responsive size hint passed to the browser (e.g. `"100vw"`, `"(max-width: 768px) 100vw, 50vw"`). |
+| `priority` | Set to `true` for above-the-fold images to disable lazy loading. |
+| `className` | Tailwind classes applied to the `<img>` element. |
+
+<Warning>
+  Remote image domains must be listed in `next.config.js` under `images.remotePatterns` or the image will fail to render.
+</Warning>
+
+## Adding images to the public directory
+
+Store static image files in the `/public` directory. Reference them with a path starting from `/`:
+
+```
+public/
+  images/
+    grid-image/
+      image-01.png
+    user/
+      avatar-01.png
+```
+
+```tsx
+<Image src="/images/grid-image/image-01.png" alt="Dashboard cover" width={1054} height={600} />
+```
+
+## Source files
+
+- `src/components/ui/images/ResponsiveImage.tsx`
+- `src/components/ui/images/TwoColumnImageGrid.tsx`
+- `src/components/ui/images/ThreeColumnImageGrid.tsx`

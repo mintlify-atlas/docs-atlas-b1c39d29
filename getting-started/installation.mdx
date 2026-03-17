@@ -1,0 +1,83 @@
+---
+title: "Installation"
+description: "Get TailAdmin up and running on your local machine with Next.js and Tailwind CSS."
+---
+
+## Prerequisites
+
+Before you begin, make sure you have **Node.js 18.x or later** installed on your machine. Node.js 20.x or later is recommended.
+
+You can check your version by running:
+
+```bash
+node --version
+```
+
+## Install TailAdmin
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the TailAdmin repository from GitHub:
+
+    ```bash
+    git clone https://github.com/TailAdmin/free-nextjs-admin-dashboard.git
+    ```
+
+    <Note>
+      **Windows users:** Place the repository near the root of your drive (e.g., `C:\projects\`) if you encounter issues during cloning. Long file paths can cause problems on Windows.
+    </Note>
+  </Step>
+
+  <Step title="Install dependencies">
+    Navigate into the project directory and install dependencies:
+
+    <CodeGroup>
+
+    ```bash npm
+    npm install
+    ```
+
+    ```bash yarn
+    yarn install
+    ```
+
+    </CodeGroup>
+
+    <Note>
+      If you encounter a peer-dependency error during installation, re-run the command with the `--legacy-peer-deps` flag:
+
+      ```bash
+      npm install --legacy-peer-deps
+      ```
+    </Note>
+  </Step>
+
+  <Step title="Start the development server">
+    Start the local development server:
+
+    <CodeGroup>
+
+    ```bash npm
+    npm run dev
+    ```
+
+    ```bash yarn
+    yarn dev
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Open in your browser">
+    Open [http://localhost:3000](http://localhost:3000) in your browser. You should see the TailAdmin ecommerce dashboard.
+  </Step>
+</Steps>
+
+## Available scripts
+
+| Script | Description |
+|---|---|
+| `npm run dev` | Starts the development server at `localhost:3000` |
+| `npm run build` | Builds the application for production |
+| `npm start` | Starts the production server (run `build` first) |
+| `npm run lint` | Runs ESLint to check for code issues |

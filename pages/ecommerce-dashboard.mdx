@@ -1,0 +1,334 @@
+---
+title: "Ecommerce Dashboard"
+description: "The default home page of TailAdmin — a data-rich ecommerce dashboard built with six purpose-built components laid out on a 12-column responsive grid."
+---
+
+## Overview
+
+The ecommerce dashboard is the first page users see after signing in. It lives at the root route (`/`) and is rendered by `src/app/(admin)/page.tsx`. The page assembles six self-contained components inside a 12-column CSS Grid, giving you at-a-glance visibility into customers, orders, monthly sales, revenue targets, statistics trends, and geographic demographics.
+
+<CardGroup cols={3}>
+  <Card title="EcommerceMetrics" icon="gauge">
+    KPI cards for Customers and Orders with trend badges
+  </Card>
+  <Card title="MonthlySalesChart" icon="chart-bar">
+    Bar chart of monthly sales across all 12 months
+  </Card>
+  <Card title="MonthlyTarget" icon="bullseye-arrow">
+    Radial gauge showing progress toward the monthly revenue target
+  </Card>
+  <Card title="StatisticsChart" icon="chart-line">
+    Dual-series area chart with a date-range picker
+  </Card>
+  <Card title="DemographicCard" icon="earth-americas">
+    Interactive world map with per-country customer breakdown
+  </Card>
+  <Card title="RecentOrders" icon="list-check">
+    Paginated orders table with status badges
+  </Card>
+</CardGroup>
+
+---
+
+## Grid Layout
+
+The page uses Tailwind's 12-column grid with responsive column spans so components reflow cleanly from mobile to desktop.
+
+```tsx
+// src/app/(admin)/page.tsx
+<div className="grid grid-cols-12 gap-4 md:gap-6">
+  {/* Left column — 7/12 on xl */}
+  <div className="col-span-12 space-y-6 xl:col-span-7">
+    <EcommerceMetrics />
+    <MonthlySalesChart />
+  </div>
+
+  {/* Right column — 5/12 on xl */}
+  <div className="col-span-12 xl:col-span-5">
+    <MonthlyTarget />
+  </div>
+
+  {/* Full width */}
+  <div className="col-span-12">
+    <StatisticsChart />
+  </div>
+
+  {/* Bottom left — 5/12 on xl */}
+  <div className="col-span-12 xl:col-span-5">
+    <DemographicCard />
+  </div>
+
+  {/* Bottom right — 7/12 on xl */}
+  <div className="col-span-12 xl:col-span-7">
+    <RecentOrders />
+  </div>
+</div>
+```
+
+| Column span | Components |
+|---|---|
+| `xl:col-span-7` | EcommerceMetrics + MonthlySalesChart (stacked) |
+| `xl:col-span-5` | MonthlyTarget |
+| `col-span-12` | StatisticsChart (full width) |
+| `xl:col-span-5` | DemographicCard |
+| `xl:col-span-7` | RecentOrders |
+
+---
+
+## Components
+
+### EcommerceMetrics
+
+`src/components/ecommerce/EcommerceMetrics.tsx`
+
+Renders two KPI cards side by side in a `sm:grid-cols-2` grid:
+
+| Metric | Value | Trend |
+|---|---|---|
+| **Customers** | 3,782 | +11.01% (success) |
+| **Orders** | 5,359 | −9.05% (error) |
+
+Each card contains an icon, a label, a large numeric value, and a colour-coded `Badge` component that renders an arrow icon alongside the percentage change.
+
+```tsx
+// src/components/ecommerce/EcommerceMetrics.tsx
+export const EcommerceMetrics = () => {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
+          <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />
+        </div>
+        <div className="flex items-end justify-between mt-5">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Customers</span>
+            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">3,782</h4>
+          </div>
+          <Badge color="success">
+            <ArrowUpIcon />
+            11.01%
+          </Badge>
+        </div>
+      </div>
+      {/* Orders card follows the same structure with color="error" */}
+    </div>
+  );
+};
+```
+
+<Tip>
+  Swap the static numbers for real API data by replacing the hardcoded values with props or a data-fetching hook.
+</Tip>
+
+---
+
+### MonthlySalesChart
+
+`src/components/ecommerce/MonthlySalesChart.tsx`
+
+A vertical bar chart powered by **react-apexcharts** (dynamically imported to avoid SSR issues). It plots one series — `Sales` — against all 12 months of the year.
+
+```tsx
+const series = [
+  {
+    name: "Sales",
+    data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+  },
+];
+```
+
+Key ApexCharts configuration:
+
+| Option | Value |
+|---|---|
+| Chart type | `bar` |
+| Height | `180px` |
+| Bar color | `#465fff` (brand blue) |
+| Border radius | `5px` on bar tops |
+| Column width | `39%` |
+| Toolbar | Hidden |
+
+A `Dropdown` menu in the top-right corner provides **View More** and **Delete** actions. The chart is wrapped in a horizontally scrollable container with a minimum width of `650px` so bars stay legible on small screens.
+
+---
+
+### MonthlyTarget
+
+`src/components/ecommerce/MonthlyTarget.tsx`
+
+A semi-circular **radial bar** chart (ApexCharts `radialBar` type) that shows the current month's revenue progress as a percentage. The gauge displays **75.55%** completion by default.
+
+```tsx
+const series = [75.55];
+const options: ApexOptions = {
+  chart: { type: "radialBar", height: 330 },
+  plotOptions: {
+    radialBar: {
+      startAngle: -85,
+      endAngle: 85,
+      hollow: { size: "80%" },
+      dataLabels: {
+        value: {
+          fontSize: "36px",
+          fontWeight: "600",
+          formatter: (val) => val + "%",
+        },
+      },
+    },
+  },
+};
+```
+
+Below the chart a three-column summary shows **Target**, **Revenue**, and **Today** figures, each with a directional arrow indicator.
+
+---
+
+### StatisticsChart
+
+`src/components/ecommerce/StatisticsChart.tsx`
+
+A dual-series **area chart** (rendered as `type="area"` in ApexCharts) that overlays Sales and Revenue trends across 12 months. The component uses **flatpickr** in range mode to let users filter data by date.
+
+```tsx
+const series = [
+  {
+    name: "Sales",
+    data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+  },
+  {
+    name: "Revenue",
+    data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+  },
+];
+```
+
+The flatpickr date picker is initialized via a `useEffect` hook with the last 7 days pre-selected:
+
+```tsx
+useEffect(() => {
+  const today = new Date();
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(today.getDate() - 6);
+
+  const fp = flatpickr(datePickerRef.current, {
+    mode: "range",
+    static: true,
+    dateFormat: "M d",
+    defaultDate: [sevenDaysAgo, today],
+  });
+
+  return () => { if (!Array.isArray(fp)) fp.destroy(); };
+}, []);
+```
+
+A `ChartTab` component above the chart provides quick-select tabs (e.g. weekly / monthly view).
+
+---
+
+### DemographicCard
+
+`src/components/ecommerce/DemographicCard.tsx`
+
+Shows a world map rendered by `@react-jvectormap/core` with markers pinned at the coordinates of key markets. Below the map, a country list shows customer counts and a horizontal progress bar for share percentage.
+
+```tsx
+// Default markers in CountryMap.tsx
+markers={[
+  { latLng: [37.258, -104.657], name: "United States" },
+  { latLng: [20.750, 73.727],   name: "India" },
+  { latLng: [53.613, -11.636], name: "United Kingdom" },
+  { latLng: [-25.030, 115.209], name: "Sweden" },
+]}
+```
+
+The vector map is dynamically imported with `{ ssr: false }` to prevent server-side rendering issues:
+
+```tsx
+const VectorMap = dynamic(
+  () => import("@react-jvectormap/core").then((mod) => mod.VectorMap),
+  { ssr: false }
+);
+```
+
+Default country rows:
+
+| Country | Customers | Share |
+|---|---|---|
+| USA | 2,379 | 79% |
+| France | 589 | 23% |
+
+---
+
+### RecentOrders
+
+`src/components/ecommerce/RecentOrders.tsx`
+
+A data table listing the five most recent orders. Each row shows a product image, name, variant count, category, price, and a status badge.
+
+```tsx
+const tableData: Product[] = [
+  { id: 1, name: "MacBook Pro 13\u201d", variants: "2 Variants", category: "Laptop",      price: "$2399.00", status: "Delivered" },
+  { id: 2, name: "Apple Watch Ultra",  variants: "1 Variant",  category: "Watch",       price: "$879.00",  status: "Pending" },
+  { id: 3, name: "iPhone 15 Pro Max",  variants: "2 Variants", category: "SmartPhone",  price: "$1869.00", status: "Delivered" },
+  { id: 4, name: "iPad Pro 3rd Gen",   variants: "2 Variants", category: "Electronics", price: "$1699.00", status: "Canceled" },
+  { id: 5, name: "AirPods Pro 2nd Gen",variants: "1 Variant",  category: "Accessories", price: "$240.00",  status: "Delivered" },
+];
+```
+
+Status badge colour mapping:
+
+| Status | Badge color |
+|---|---|
+| Delivered | `success` (green) |
+| Pending | `warning` (yellow) |
+| Canceled | `error` (red) |
+
+The table uses TailAdmin's custom `<Table>`, `<TableHeader>`, `<TableRow>`, and `<TableCell>` components from `src/components/ui/table`.
+
+---
+
+## Full Page Source
+
+```tsx
+// src/app/(admin)/page.tsx
+import type { Metadata } from "next";
+import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
+import React from "react";
+import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
+import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
+import StatisticsChart from "@/components/ecommerce/StatisticsChart";
+import RecentOrders from "@/components/ecommerce/RecentOrders";
+import DemographicCard from "@/components/ecommerce/DemographicCard";
+
+export const metadata: Metadata = {
+  title: "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
+  description: "This is Next.js Home for TailAdmin Dashboard Template",
+};
+
+export default function Ecommerce() {
+  return (
+    <div className="grid grid-cols-12 gap-4 md:gap-6">
+      <div className="col-span-12 space-y-6 xl:col-span-7">
+        <EcommerceMetrics />
+        <MonthlySalesChart />
+      </div>
+
+      <div className="col-span-12 xl:col-span-5">
+        <MonthlyTarget />
+      </div>
+
+      <div className="col-span-12">
+        <StatisticsChart />
+      </div>
+
+      <div className="col-span-12 xl:col-span-5">
+        <DemographicCard />
+      </div>
+
+      <div className="col-span-12 xl:col-span-7">
+        <RecentOrders />
+      </div>
+    </div>
+  );
+}
+```

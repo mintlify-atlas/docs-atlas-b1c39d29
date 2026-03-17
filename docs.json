@@ -1,122 +1,108 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "TailAdmin",
+  "theme": "willow",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#141c2b",
+    "light": "#4257e2",
+    "dark": "#9cacec"
   },
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "https://media.brand.dev/b7bf0b41-34b4-40e9-a402-5c01401df9d0.svg",
+    "dark": "https://media.brand.dev/b7bf0b41-34b4-40e9-a402-5c01401df9d0.svg"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/TailAdmin/free-nextjs-admin-dashboard"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/TailAdmin/free-nextjs-admin-dashboard"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Getting Started",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Introduction",
+            "pages": ["introduction", "getting-started/installation", "getting-started/project-structure"]
+          },
+          {
+            "group": "Configuration",
+            "pages": ["getting-started/tailwind-config", "getting-started/dark-mode", "getting-started/typescript"]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "Layout",
+            "pages": ["components/sidebar", "components/header", "components/dashboard-layout"]
+          },
+          {
+            "group": "UI Elements",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "components/buttons",
+              "components/alerts",
+              "components/badges",
+              "components/modals",
+              "components/dropdowns",
+              "components/avatars",
+              "components/images",
+              "components/videos"
             ]
           },
           {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
+            "group": "Data Display",
+            "pages": ["components/tables", "components/charts-line", "components/charts-bar"]
           },
           {
-            "group": "Writing content",
+            "group": "Forms",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "components/form-elements",
+              "components/date-picker",
+              "components/multi-select",
+              "components/select"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Pages",
         "groups": [
           {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
+            "group": "Dashboard",
+            "pages": ["pages/ecommerce-dashboard"]
           },
           {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
+            "group": "Authentication",
+            "pages": ["pages/sign-in", "pages/sign-up"]
+          },
+          {
+            "group": "Other Pages",
+            "pages": ["pages/profile", "pages/calendar", "pages/blank-page", "pages/404"]
+          }
+        ]
+      },
+      {
+        "tab": "Customization",
+        "groups": [
+          {
+            "group": "Theming",
+            "pages": ["customization/colors", "customization/typography", "customization/layouts"]
+          },
+          {
+            "group": "Upgrade",
+            "pages": ["customization/pro-version", "customization/changelog"]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

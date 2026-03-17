@@ -1,0 +1,171 @@
+---
+title: "Header"
+description: "A sticky top header bar with a sidebar toggle, command-palette search, theme switcher, notification dropdown, and user menu."
+---
+
+## Overview
+
+`AppHeader` is the persistent top navigation bar rendered on every admin page. It sits above the main content area and provides:
+
+- **Sidebar toggle** — collapses or expands the sidebar on desktop; opens the mobile drawer on smaller screens
+- **Search input** — a text field that focuses with the `⌘ K` / `Ctrl K` keyboard shortcut
+- **Theme toggle** — switches between light and dark mode
+- **Notification dropdown** — shows recent notifications
+- **User dropdown** — shows the signed-in user's avatar and account options
+- **Mobile application menu** — a three-dot button that reveals the action bar on small screens
+
+## Usage
+
+`AppHeader` is already included in the admin layout. You do not need to add it to individual pages.
+
+```tsx src/app/(admin)/layout.tsx
+import AppHeader from "@/layout/AppHeader";
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen xl:flex">
+      {/* ... */}
+      <div className="flex-1 transition-all duration-300 ease-in-out">
+        <AppHeader />
+        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+```
+
+## Features
+
+### Sidebar toggle
+
+The hamburger button calls `handleToggle`, which chooses between the desktop and mobile toggle functions based on the current viewport width:
+
+```tsx src/layout/AppHeader.tsx
+const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+
+const handleToggle = () => {
+  if (window.innerWidth >= 1024) {
+    toggleSidebar();
+  } else {
+    toggleMobileSidebar();
+  }
+};
+```
+
+The button icon also changes state: it shows a hamburger when closed and an `×` (close) icon when the mobile drawer is open.
+
+### Search
+
+The search input is visible only on desktop (`hidden lg:block`). It supports a `⌘ K` / `Ctrl K` keyboard shortcut that focuses the field programmatically:
+
+```tsx src/layout/AppHeader.tsx
+const inputRef = useRef<HTMLInputElement>(null);
+
+useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+      event.preventDefault();
+      inputRef.current?.focus();
+    }
+  };
+
+  document.addEventListener("keydown", handleKeyDown);
+  return () => document.removeEventListener("keydown", handleKeyDown);
+}, []);
+```
+
+The `⌘ K` hint badge is rendered as a visual affordance inside the input field.
+
+### Theme toggle
+
+The `ThemeToggleButton` component reads and updates the theme via `ThemeContext`. The context persists the user's preference to `localStorage` and applies or removes the `dark` class on `<html>`.
+
+```tsx src/layout/AppHeader.tsx
+import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
+
+// Inside the header JSX:
+<ThemeToggleButton />
+```
+
+### Notification dropdown
+
+The `NotificationDropdown` component renders a bell icon with a dropdown list of recent notifications.
+
+```tsx src/layout/AppHeader.tsx
+import NotificationDropdown from "@/components/header/NotificationDropdown";
+
+// Inside the header JSX:
+<NotificationDropdown />
+```
+
+To customize notification content or data fetching, edit `src/components/header/NotificationDropdown.tsx`.
+
+### User dropdown
+
+The `UserDropdown` component displays the current user's avatar and a dropdown with account-related links.
+
+```tsx src/layout/AppHeader.tsx
+import UserDropdown from "@/components/header/UserDropdown";
+
+// Inside the header JSX:
+<UserDropdown />
+```
+
+To update the user name, avatar, or menu items, edit `src/components/header/UserDropdown.tsx`.
+
+### Mobile application menu
+
+On small screens, the theme toggle, notification, and user controls are hidden behind a three-dot button. Clicking it toggles `isApplicationMenuOpen`, which shows or hides the controls:
+
+```tsx src/layout/AppHeader.tsx
+const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+
+const toggleApplicationMenu = () => {
+  setApplicationMenuOpen(!isApplicationMenuOpen);
+};
+
+// Applied as a conditional class:
+className={`${
+  isApplicationMenuOpen ? "flex" : "hidden"
+} items-center justify-between w-full gap-4 ... lg:flex ...`}
+```
+
+On `lg` and wider screens the menu is always visible (`lg:flex`), so the toggle button itself is hidden (`lg:hidden`).
+
+## Sidebar context integration
+
+`AppHeader` connects to `SidebarContext` via the `useSidebar` hook. It reads `isMobileOpen` to determine which icon to display in the toggle button, and it calls `toggleSidebar` or `toggleMobileSidebar` depending on the viewport:
+
+```tsx src/layout/AppHeader.tsx
+const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+```
+
+`SidebarContext` is provided at the root layout level (`src/app/layout.tsx`), so `AppHeader` always has access to it without any additional setup.
+
+## Customizing the header
+
+<Steps>
+  <Step title="Add a new action button">
+    Open `src/layout/AppHeader.tsx` and add your button inside the actions `<div>` alongside `ThemeToggleButton` and `NotificationDropdown`:
+
+    ```tsx
+    <div className="flex items-center gap-2 2xsm:gap-3">
+      <ThemeToggleButton />
+      <NotificationDropdown />
+      {/* Your new button here */}
+    </div>
+    ```
+  </Step>
+
+  <Step title="Replace the search input">
+    Remove or replace the `<form>` block inside the `hidden lg:block` container with your own search or command-palette implementation.
+  </Step>
+
+  <Step title="Update user dropdown content">
+    Edit `src/components/header/UserDropdown.tsx` to change the avatar image, display name, or dropdown menu links.
+  </Step>
+</Steps>
+
+<Note>
+  The header uses `sticky top-0` positioning with `z-99999`, keeping it above all page content and modals as you scroll.
+</Note>

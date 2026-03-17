@@ -1,0 +1,164 @@
+---
+title: "Tailwind CSS configuration"
+description: "How TailAdmin configures Tailwind CSS v4, custom design tokens, and the forms plugin."
+---
+
+## Tailwind CSS v4
+
+TailAdmin uses **Tailwind CSS v4**, which replaces the traditional `tailwind.config.js` file with a CSS-first configuration approach. All theme customization lives in `src/app/globals.css` inside a `@theme` block.
+
+## PostCSS setup
+
+Tailwind CSS v4 integrates with PostCSS through `@tailwindcss/postcss` instead of the classic `tailwindcss` plugin. The `postcss.config.js` at the project root is minimal:
+
+```javascript postcss.config.js
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+};
+```
+
+<Note>
+  There is no `tailwind.config.js` in this project. All configuration is done in `globals.css` using the `@theme` directive.
+</Note>
+
+## Importing Tailwind
+
+Tailwind CSS is imported at the top of `src/app/globals.css` with a single line:
+
+```css src/app/globals.css
+@import 'tailwindcss';
+```
+
+This replaces the three-directive approach (`@tailwind base`, `@tailwind components`, `@tailwind utilities`) used in Tailwind CSS v3.
+
+## Custom theme tokens
+
+All design tokens are declared inside the `@theme` block in `globals.css`. Tailwind reads these CSS variables and makes them available as utility classes.
+
+### Custom breakpoints
+
+```css
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-2xsm: 375px;
+  --breakpoint-xsm: 425px;
+  --breakpoint-3xl: 2000px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+```
+
+The `--breakpoint-*: initial` line resets all default Tailwind breakpoints so only the custom ones are active.
+
+### Custom font
+
+```css
+@theme {
+  --font-*: initial;
+  --font-outfit: Outfit, sans-serif;
+}
+```
+
+This registers `font-outfit` as a Tailwind utility class (e.g., `class="font-outfit"`).
+
+### Color palette
+
+TailAdmin defines a full palette of semantic color scales under the `@theme` block. These become standard Tailwind color utilities:
+
+```css
+@theme {
+  --color-brand-500: #465fff;
+  --color-brand-600: #3641f5;
+
+  --color-gray-50:  #f9fafb;
+  --color-gray-900: #101828;
+
+  --color-success-500: #12b76a;
+  --color-error-500:   #f04438;
+  --color-warning-500: #f79009;
+}
+```
+
+With these tokens registered, you can use classes like `bg-brand-500`, `text-gray-900`, or `border-error-500` anywhere in the template.
+
+### Custom typography scale
+
+```css
+@theme {
+  --text-title-2xl: 72px;
+  --text-title-2xl--line-height: 90px;
+
+  --text-theme-sm: 14px;
+  --text-theme-sm--line-height: 20px;
+
+  --text-theme-xs: 12px;
+  --text-theme-xs--line-height: 18px;
+}
+```
+
+### Custom shadows
+
+```css
+@theme {
+  --shadow-theme-md:
+    0px 4px 8px -2px rgba(16, 24, 40, 0.1),
+    0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+
+  --shadow-focus-ring: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
+}
+```
+
+## Dark mode variant
+
+The dark mode variant is registered as a custom CSS variant:
+
+```css src/app/globals.css
+@custom-variant dark (&:is(.dark *));
+```
+
+This tells Tailwind to apply `dark:` prefixed utilities when any ancestor element has the `dark` class. See the [Dark mode](/getting-started/dark-mode) page for how the template toggles this class.
+
+## Custom utility classes
+
+Tailwind v4 allows you to define reusable utility classes with `@utility`. TailAdmin uses this for sidebar menu items:
+
+```css
+@utility menu-item {
+  @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
+}
+
+@utility menu-item-active {
+  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+```
+
+These classes can then be used directly in JSX: `className="menu-item menu-item-active"`.
+
+## `@tailwindcss/forms` plugin
+
+The `@tailwindcss/forms` plugin is listed as a dependency in `package.json`:
+
+```json package.json
+"@tailwindcss/forms": "^0.5.10"
+```
+
+In Tailwind CSS v4, plugins are applied via PostCSS or imported in your CSS. The forms plugin resets browser default form styling so that inputs, selects, checkboxes, and textareas are easy to style with utility classes.
+
+## Adding your own tokens
+
+To add a new color or size token, add a CSS variable to the `@theme` block in `globals.css`:
+
+```css
+@theme {
+  /* Add a custom accent color */
+  --color-accent-500: #7c3aed;
+  --color-accent-600: #6d28d9;
+}
+```
+
+After saving, you can use `bg-accent-500`, `text-accent-600`, and any other Tailwind variant immediately — no config file restart needed.

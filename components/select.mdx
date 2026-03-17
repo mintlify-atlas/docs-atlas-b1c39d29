@@ -1,0 +1,162 @@
+---
+title: "Select"
+description: "A styled single-value select dropdown component that wraps the native HTML select element with TailAdmin's design system styling."
+---
+
+## Overview
+
+The `Select` component is a controlled wrapper around the native `<select>` element. It applies TailAdmin's border, focus ring, and dark-mode styles, and manages the selected value internally via `useState`. A disabled placeholder option is rendered as the first item to prompt the user.
+
+<Note>
+  Because the browser renders the native OS dropdown for `<select>`, you will need to supply a custom chevron icon overlay yourself — see the example below. The template's usage in `DefaultInputs.tsx` and `SelectInputs.tsx` demonstrates the standard pattern.
+</Note>
+
+## Import
+
+```tsx
+import Select from "@/components/form/Select";
+```
+
+## Props
+
+<ParamField path="options" type="Option[]" required>
+  The list of items to display. Each option must conform to:
+
+  ```ts
+  interface Option {
+    value: string; // submitted value
+    label: string; // visible text
+  }
+  ```
+</ParamField>
+
+<ParamField path="onChange" type="(value: string) => void" required>
+  Callback fired with the selected option's `value` string whenever the user picks a new item.
+</ParamField>
+
+<ParamField path="placeholder" type="string" default="Select an option">
+  Text for the disabled first option that prompts the user to make a choice.
+</ParamField>
+
+<ParamField path="defaultValue" type="string" default="">
+  The initially selected `value`. Pass an empty string (the default) to show the placeholder on first render.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes appended to the `<select>` element.
+</ParamField>
+
+## Usage
+
+### Basic example
+
+<Steps>
+  <Step title="Define your options array">
+    ```tsx
+    const options = [
+      { value: "marketing", label: "Marketing" },
+      { value: "template", label: "Template" },
+      { value: "development", label: "Development" },
+    ];
+    ```
+  </Step>
+
+  <Step title="Render Select with a chevron overlay">
+    The native `<select>` hides the browser default arrow via `appearance-none`. Add your own icon in a wrapper to restore the visual affordance.
+
+    ```tsx
+    import Select from "@/components/form/Select";
+    import { ChevronDownIcon } from "@/icons";
+
+    <div className="relative">
+      <Select
+        options={options}
+        placeholder="Select an option"
+        onChange={(value) => console.log("Selected:", value)}
+      />
+      <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+        <ChevronDownIcon />
+      </span>
+    </div>
+    ```
+  </Step>
+</Steps>
+
+### Handling the selected value
+
+```tsx
+"use client";
+import React from "react";
+import Label from "@/components/form/Label";
+import Select from "@/components/form/Select";
+import { ChevronDownIcon } from "@/icons";
+
+const options = [
+  { value: "marketing", label: "Marketing" },
+  { value: "template", label: "Template" },
+  { value: "development", label: "Development" },
+];
+
+export default function DepartmentSelect() {
+  const handleSelectChange = (value: string) => {
+    console.log("Selected value:", value);
+  };
+
+  return (
+    <div>
+      <Label>Department</Label>
+      <div className="relative">
+        <Select
+          options={options}
+          placeholder="Select a department"
+          onChange={handleSelectChange}
+          className="dark:bg-dark-900"
+        />
+        <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+          <ChevronDownIcon />
+        </span>
+      </div>
+    </div>
+  );
+}
+```
+
+### Pre-selected value
+
+Pass `defaultValue` to start the select on a specific option:
+
+```tsx
+<Select
+  options={options}
+  defaultValue="development"
+  onChange={(value) => console.log(value)}
+/>
+```
+
+## Rendering options
+
+The component maps over the `options` array and renders each item as a native `<option>` element:
+
+```tsx
+{options.map((option) => (
+  <option
+    key={option.value}
+    value={option.value}
+    className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
+  >
+    {option.label}
+  </option>
+))}
+```
+
+The placeholder is always the first option and is rendered `disabled` so it cannot be re-selected once the user has made a choice:
+
+```tsx
+<option value=" disabled>
+  {placeholder}
+</option>
+```
+
+## Source file
+
+`src/components/form/Select.tsx`

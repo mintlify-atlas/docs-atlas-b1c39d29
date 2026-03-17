@@ -1,0 +1,182 @@
+---
+title: "Profile Page"
+description: "The user profile page in TailAdmin, displaying personal information, address details, and social links — all editable via modal dialogs."
+---
+
+## Overview
+
+The profile page lives at `/profile` and is rendered by `src/app/(admin)/(others-pages)/profile/page.tsx`. It sits inside the standard admin layout (with sidebar and topbar) and composes three card components that each handle a distinct section of user data.
+
+```tsx
+// src/app/(admin)/(others-pages)/profile/page.tsx
+import UserAddressCard from "@/components/user-profile/UserAddressCard";
+import UserInfoCard from "@/components/user-profile/UserInfoCard";
+import UserMetaCard from "@/components/user-profile/UserMetaCard";
+import { Metadata } from "next";
+import React from "react";
+
+export const metadata: Metadata = {
+  title: "Next.js Profile | TailAdmin - Next.js Dashboard Template",
+  description:
+    "This is Next.js Profile page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+};
+
+export default function Profile() {
+  return (
+    <div>
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+        <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
+          Profile
+        </h3>
+        <div className="space-y-6">
+          <UserMetaCard />
+          <UserInfoCard />
+          <UserAddressCard />
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## Page Sections
+
+<CardGroup cols={3}>
+  <Card title="UserMetaCard" icon="user-circle">
+    Avatar, display name, job title, location, and social media links
+  </Card>
+  <Card title="UserInfoCard" icon="id-card">
+    Personal information: name, email, phone, and bio
+  </Card>
+  <Card title="UserAddressCard" icon="location-dot">
+    Address details: country, city/state, postal code, and TAX ID
+  </Card>
+</CardGroup>
+
+---
+
+## UserMetaCard
+
+`src/components/user-profile/UserMetaCard.tsx`
+
+Displays the user's avatar and identity at the top of the profile. An **Edit** button opens a modal that lets the user update their social links and personal information.
+
+**Default values shown:**
+
+| Field | Value |
+|---|---|
+| Name | Musharof Chowdhury |
+| Role | Team Manager |
+| Location | Arizona, United States |
+| Social links | Facebook, X, LinkedIn, Instagram |
+
+**Social link icons** link to external profiles. To change the default URLs, update the `href` attributes and the corresponding `defaultValue` props in the edit modal's `Input` fields.
+
+The modal uses TailAdmin's `useModal` hook for open/close state management:
+
+```tsx
+// src/components/user-profile/UserMetaCard.tsx
+const { isOpen, openModal, closeModal } = useModal();
+
+// Opens on Edit button click
+<button onClick={openModal}>Edit</button>
+
+<Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
+  {/* Edit Personal Information form */}
+</Modal>
+```
+
+The edit form inside the modal contains two sections:
+
+1. **Social Links** — Facebook, X.com, LinkedIn, Instagram
+2. **Personal Information** — First Name, Last Name, Email Address, Phone, Bio
+
+---
+
+## UserInfoCard
+
+`src/components/user-profile/UserInfoCard.tsx`
+
+Displays personal details in a read-only two-column grid. An **Edit** button opens a modal identical in structure to the one in `UserMetaCard`.
+
+**Fields displayed:**
+
+| Label | Default value |
+|---|---|
+| First Name | Musharof |
+| Last Name | Chowdhury |
+| Email address | randomuser@pimjo.com |
+| Phone | +09 363 398 46 |
+| Bio | Team Manager |
+
+```tsx
+// src/components/user-profile/UserInfoCard.tsx (display grid)
+<div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+  <div>
+    <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">First Name</p>
+    <p className="text-sm font-medium text-gray-800 dark:text-white/90">Musharof</p>
+  </div>
+  {/* additional fields follow the same pattern */}
+</div>
+```
+
+---
+
+## UserAddressCard
+
+`src/components/user-profile/UserAddressCard.tsx`
+
+Displays address details in a read-only two-column grid with its own **Edit** modal.
+
+**Fields displayed:**
+
+| Label | Default value |
+|---|---|
+| Country | United States |
+| City/State | Phoenix, Arizona, United States. |
+| Postal Code | ERT 2489 |
+| TAX ID | AS4568384 |
+
+```tsx
+// src/components/user-profile/UserAddressCard.tsx (edit modal form)
+<div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+  <div>
+    <Label>Country</Label>
+    <Input type="text" defaultValue="United States" />
+  </div>
+  <div>
+    <Label>City/State</Label>
+    <Input type="text" defaultValue="Arizona, United States." />
+  </div>
+  <div>
+    <Label>Postal Code</Label>
+    <Input type="text" defaultValue="ERT 2489" />
+  </div>
+  <div>
+    <Label>TAX ID</Label>
+    <Input type="text" defaultValue="AS4568384" />
+  </div>
+</div>
+```
+
+---
+
+## Connecting to Real Data
+
+<Steps>
+  <Step title="Fetch the user record">
+    Replace the hardcoded `defaultValue` props with data from your backend. You can fetch server-side in the page component and pass the values down as props, or use a client-side hook inside each card.
+  </Step>
+  <Step title="Persist updates">
+    In each card's `handleSave` function, add a `fetch` or `axios` call to your PATCH/PUT endpoint before calling `closeModal()`.
+  </Step>
+  <Step title="Upload a new avatar">
+    Replace the static `<Image>` in `UserMetaCard` with a file-input component that uploads to your storage provider (e.g. S3, Cloudinary) and updates the `src` URL on success.
+  </Step>
+</Steps>
+
+<Note>
+  All three cards share the same modal editing pattern. You only need to update the data-fetching and save logic in one place per card — the UI structure can remain unchanged.
+</Note>

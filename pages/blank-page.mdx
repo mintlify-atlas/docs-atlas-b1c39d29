@@ -1,0 +1,103 @@
+---
+title: "Blank Page"
+description: "A minimal starter page in TailAdmin that provides the correct layout shell and card structure for building new admin pages from scratch."
+---
+
+## Overview
+
+The blank page lives at `/blank` and is rendered by `src/app/(admin)/(others-pages)/blank/page.tsx`. It gives you a ready-made shell that already includes:
+
+- A `PageBreadcrumb` for consistent navigation context
+- A `rounded-2xl` card panel with correct border and background tokens for both light and dark mode
+- Responsive horizontal padding (`px-5 xl:px-10`) and vertical padding (`py-7 xl:py-12`)
+- A centred placeholder title and body text you can replace immediately
+
+Use this page as the starting point whenever you need to add a new section to the admin dashboard.
+
+---
+
+## Source
+
+```tsx
+// src/app/(admin)/(others-pages)/blank/page.tsx
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { Metadata } from "next";
+import React from "react";
+
+export const metadata: Metadata = {
+  title: "Next.js Blank Page | TailAdmin - Next.js Dashboard Template",
+  description: "This is Next.js Blank Page TailAdmin Dashboard Template",
+};
+
+export default function BlankPage() {
+  return (
+    <div>
+      <PageBreadcrumb pageTitle="Blank Page" />
+      <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
+        <div className="mx-auto w-full max-w-[630px] text-center">
+          <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
+            Card Title Here
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
+            Start putting content on grids or panels, you can also use different
+            combinations of grids. Please check out the dashboard and other pages
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## Creating a New Page From the Blank Template
+
+<Steps>
+  <Step title="Duplicate the directory">
+    Copy `src/app/(admin)/(others-pages)/blank/` to a new folder with the route name you want, e.g. `src/app/(admin)/(others-pages)/reports/`.
+  </Step>
+  <Step title="Update the metadata">
+    Edit the `metadata` export at the top of `page.tsx` to reflect the new page title and description.
+
+    ```tsx
+    export const metadata: Metadata = {
+      title: "Reports | TailAdmin",
+      description: "Monthly and annual reports overview.",
+    };
+    ```
+  </Step>
+  <Step title="Update the breadcrumb">
+    Change the `pageTitle` prop on `PageBreadcrumb` to match your new page name:
+
+    ```tsx
+    <PageBreadcrumb pageTitle="Reports" />
+    ```
+  </Step>
+  <Step title="Replace the placeholder content">
+    Remove the `max-w-[630px]` centred placeholder and add your own components inside the card panel. Use the 12-column grid from the ecommerce dashboard as a reference for multi-column layouts.
+  </Step>
+  <Step title="Add to navigation">
+    Register the new route in `docs.json` (for documentation) or in the sidebar data file in `src/components/layout/AppSidebar.tsx` so users can navigate to it.
+  </Step>
+</Steps>
+
+---
+
+## Card Panel Tokens
+
+The blank page uses these Tailwind classes for the content card. Keep them when building new pages to stay visually consistent with the rest of the dashboard:
+
+| Class | Purpose |
+|---|---|
+| `rounded-2xl` | Consistent corner radius across all cards |
+| `border border-gray-200` | Light-mode border |
+| `dark:border-gray-800` | Dark-mode border |
+| `bg-white` | Light-mode background |
+| `dark:bg-white/[0.03]` | Dark-mode semi-transparent background |
+| `px-5 xl:px-10` | Responsive horizontal padding |
+| `py-7 xl:py-12` | Responsive vertical padding |
+
+<Tip>
+  All other pages in TailAdmin follow the same card token conventions. Copy the outer `<div>` wrapper from the blank page rather than writing it from memory.
+</Tip>

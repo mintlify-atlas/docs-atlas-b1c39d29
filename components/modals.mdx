@@ -1,0 +1,255 @@
+---
+title: "Modals"
+description: "A composable modal dialog component paired with the useModal hook for open/close state management."
+---
+
+## Overview
+
+TailAdmin provides a `Modal` component and a `useModal` hook that work together. `Modal` handles rendering, focus trapping, scroll locking, and keyboard dismissal. `useModal` manages the boolean open/close state so you never have to wire it up manually.
+
+## Installation
+
+Both files are included in the template:
+
+- `src/components/ui/modal/index.tsx` — the `Modal` component
+- `src/hooks/useModal.ts` — the `useModal` hook
+
+## The `useModal` hook
+
+```tsx
+import { useModal } from "@/hooks/useModal";
+```
+
+`useModal` returns four values:
+
+| Return value | Type | Description |
+|---|---|---|
+| `isOpen` | `boolean` | `true` when the modal is open. |
+| `openModal` | `() => void` | Sets `isOpen` to `true`. |
+| `closeModal` | `() => void` | Sets `isOpen` to `false`. |
+| `toggleModal` | `() => void` | Flips the current open state. |
+
+All callbacks are memoised with `useCallback`, so they are stable across re-renders.
+
+```tsx
+const { isOpen, openModal, closeModal } = useModal();
+```
+
+You can pass an optional initial state:
+
+```tsx
+// Modal starts open
+const { isOpen, closeModal } = useModal(true);
+```
+
+## The `Modal` component
+
+```tsx
+import { Modal } from "@/components/ui/modal";
+```
+
+### Props
+
+<ParamField path="isOpen" type="boolean" required>
+  Controls whether the modal is visible. Pass `isOpen` from `useModal`.
+</ParamField>
+
+<ParamField path="onClose" type="() => void" required>
+  Called when the user dismisses the modal — via the close button, the backdrop click, or the `Escape` key. Pass `closeModal` from `useModal`.
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  The content rendered inside the modal panel.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional Tailwind classes applied to the modal panel. Use this to control max-width and padding, for example `"max-w-[600px] p-5 lg:p-10"`.
+</ParamField>
+
+<ParamField path="showCloseButton" type="boolean" default="true">
+  Renders the ✕ close button in the top-right corner of the panel.
+</ParamField>
+
+<ParamField path="isFullscreen" type="boolean" default="false">
+  When `true`, the modal panel expands to fill the entire viewport. The backdrop is hidden in fullscreen mode.
+</ParamField>
+
+### Built-in behaviour
+
+- Pressing `Escape` closes the modal.
+- Clicking the backdrop (the blurred overlay) closes the modal.
+- `document.body` scroll is locked while the modal is open and restored on close.
+- Clicking inside the panel does not close the modal (event propagation is stopped).
+
+## Usage
+
+### Basic modal
+
+<Steps>
+  <Step title="Import the hook and component">
+    ```tsx
+    import { useModal } from "@/hooks/useModal";
+    import { Modal } from "@/components/ui/modal";
+    import Button from "@/components/ui/button/Button";
+    ```
+  </Step>
+
+  <Step title="Initialise the hook">
+    ```tsx
+    const { isOpen, openModal, closeModal } = useModal();
+    ```
+  </Step>
+
+  <Step title="Wire up the trigger and modal">
+    ```tsx
+    <Button size="sm" onClick={openModal}>
+      Open Modal
+    </Button>
+
+    <Modal
+      isOpen={isOpen}
+      onClose={closeModal}
+      className="max-w-[600px] p-5 lg:p-10"
+    >
+      <h4 className="font-semibold text-gray-800 mb-7 text-title-sm dark:text-white/90">
+        Modal Heading
+      </h4>
+      <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      </p>
+      <div className="flex items-center justify-end w-full gap-3 mt-8">
+        <Button size="sm" variant="outline" onClick={closeModal}>
+          Close
+        </Button>
+        <Button size="sm" onClick={closeModal}>
+          Save Changes
+        </Button>
+      </div>
+    </Modal>
+    ```
+  </Step>
+</Steps>
+
+### Form inside a modal
+
+Place any form content inside the `Modal` children. The modal applies no opinionated form layout — wrap fields in whatever grid or flex structure you need.
+
+```tsx
+"use client";
+import { useModal } from "@/hooks/useModal";
+import { Modal } from "@/components/ui/modal";
+import Button from "@/components/ui/button/Button";
+
+export default function FormInModal() {
+  const { isOpen, openModal, closeModal } = useModal();
+
+  return (
+    <>
+      <Button size="sm" onClick={openModal}>
+        Open Modal
+      </Button>
+      <Modal
+        isOpen={isOpen}
+        onClose={closeModal}
+        className="max-w-[584px] p-5 lg:p-10"
+      >
+        <form>
+          <h4 className="mb-6 text-lg font-medium text-gray-800 dark:text-white/90">
+            Personal Information
+          </h4>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+            <div className="col-span-1">
+              <label>First Name</label>
+              <input type="text" placeholder="Jane" />
+            </div>
+            <div className="col-span-1">
+              <label>Last Name</label>
+              <input type="text" placeholder="Doe" />
+            </div>
+          </div>
+          <div className="flex items-center justify-end w-full gap-3 mt-6">
+            <Button size="sm" variant="outline" onClick={closeModal}>
+              Close
+            </Button>
+            <Button size="sm" onClick={closeModal}>
+              Save Changes
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </>
+  );
+}
+```
+
+### Fullscreen modal
+
+Set `isFullscreen` to `true` for a modal that covers the entire viewport. Manage the internal layout yourself — the panel renders as `w-full h-full` with no built-in padding.
+
+```tsx
+"use client";
+import { useModal } from "@/hooks/useModal";
+import { Modal } from "@/components/ui/modal";
+import Button from "@/components/ui/button/Button";
+
+export default function FullScreenModal() {
+  const { isOpen, openModal, closeModal } = useModal();
+
+  return (
+    <>
+      <Button size="sm" onClick={openModal}>
+        Open Modal
+      </Button>
+      <Modal
+        isOpen={isOpen}
+        onClose={closeModal}
+        isFullscreen={true}
+        showCloseButton={true}
+      >
+        <div className="fixed top-0 left-0 flex flex-col justify-between w-full h-screen p-6 overflow-y-auto bg-white dark:bg-gray-900 lg:p-10">
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-7 text-title-sm dark:text-white/90">
+              Modal Heading
+            </h4>
+            <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+              Full-screen modal content goes here.
+            </p>
+          </div>
+          <div className="flex items-center justify-end w-full gap-3 mt-8">
+            <Button size="sm" variant="outline" onClick={closeModal}>
+              Close
+            </Button>
+            <Button size="sm" onClick={closeModal}>
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+}
+```
+
+## Multiple modals
+
+Create a separate `useModal` call for each modal. The hook is lightweight and safe to call multiple times in the same component.
+
+```tsx
+const primaryModal = useModal();
+const confirmModal = useModal();
+
+// Open the confirm dialog from within the primary modal
+const handleAction = () => {
+  primaryModal.closeModal();
+  confirmModal.openModal();
+};
+```
+
+<Note>
+  `Modal` is a Client Component (`"use client"`). Any page or component that imports and renders `Modal` directly must also be a Client Component, or you must wrap the modal in its own client boundary file.
+</Note>
+
+## Source files
+
+- `src/components/ui/modal/index.tsx`
+- `src/hooks/useModal.ts`

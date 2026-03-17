@@ -1,0 +1,82 @@
+---
+title: "Changelog"
+description: "Release history for TailAdmin Next.js, from v1.3.0 to the current version."
+---
+
+## Version 2.2.3 — March 15, 2026
+
+Current release.
+
+- Updated ESLint configuration and dependencies
+- Upgraded Next.js to version 16.1.6
+
+## Version 2.2.2 — December 30, 2025
+
+- Fixed date picker positioning and functionality in Statistics Chart
+
+## Version 2.1.0 — November 15, 2025
+
+- Updated to Next.js 16.x
+- Fixed all reported minor bugs
+
+<AccordionGroup>
+  <Accordion title="Version 2.0.2 — March 25, 2025">
+    - Upgraded to Next.js 16.x for [CVE-2025-29927](https://nextjs.org/blog/cve-2025-29927) concerns
+    - Included overrides for vectormap packages to prevent peer dependency errors during installation
+    - Migrated from `react-flatpickr` to `flatpickr` package for React 19 support
+  </Accordion>
+
+  <Accordion title="Version 2.0.1 — February 27, 2025">
+    - Upgraded to Tailwind CSS v4 for better performance and efficiency
+    - Updated class usage to match the latest syntax and features
+    - Replaced deprecated classes and optimized styles
+
+    After upgrading, run `npm install` or `yarn install` to update dependencies. Refer to the [Tailwind CSS v4 Migration Guide](https://tailwindcss.com/docs/upgrade-guide) if you encounter compatibility issues.
+  </Accordion>
+
+  <Accordion title="Version 2.0.0 — February 2025">
+    A major update focused on Next.js 16 implementation and a comprehensive redesign.
+
+    **Major improvements**
+
+    - Complete redesign using Next.js 16 App Router and React Server Components
+    - Enhanced user interface with Next.js-optimized components
+    - Improved responsiveness and accessibility
+    - New features: collapsible sidebar, chat screens, and calendar
+    - Redesigned authentication using Next.js App Router and server actions
+    - Updated data visualization using ApexCharts for React
+
+    **Breaking changes**
+
+    - Migrated from Next.js 14 to Next.js 16
+    - Chart components now use ApexCharts for React
+    - Authentication flow updated to use Server Actions and middleware
+  </Accordion>
+
+  <Accordion title="Version 1.3.4 — July 1, 2024">
+    - Fixed JSvectormap rendering issues
+  </Accordion>
+
+  <Accordion title="Version 1.3.3 — June 20, 2024">
+    - Fixed build error related to the Loader component
+  </Accordion>
+
+  <Accordion title="Version 1.3.2 — June 19, 2024">
+    - Added `ClickOutside` component for dropdown menus
+    - Refactored sidebar components
+    - Updated JSvectormap package
+  </Accordion>
+
+  <Accordion title="Version 1.3.1 — February 12, 2024">
+    - Fixed layout naming consistency
+    - Updated styles
+  </Accordion>
+
+  <Accordion title="Version 1.3.0 — February 5, 2024">
+    - Upgraded to Next.js 14
+    - Added Flatpickr integration
+    - Improved form elements
+    - Enhanced multiselect functionality
+    - Added default layout component
+  </Accordion>
+</AccordionGroup>

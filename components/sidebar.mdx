@@ -1,0 +1,275 @@
+---
+title: "Sidebar"
+description: "A collapsible navigation sidebar with nested sub-menus, mobile drawer support, and a hover-to-expand mode for desktop."
+---
+
+## Overview
+
+`AppSidebar` is the main navigation panel in TailAdmin. It lives on the left side of every admin page and supports three display states:
+
+- **Expanded** — full width (290 px) showing icons, labels, and sub-menus
+- **Collapsed** — icon-only rail (90 px) on desktop
+- **Hover-expanded** — automatically widens to 290 px when you hover over the collapsed rail
+
+On mobile the sidebar slides in as a drawer from the left. A `Backdrop` overlay appears behind it so tapping outside closes the panel.
+
+All state is managed by `SidebarContext`, so any component in the tree can read or toggle the sidebar without prop-drilling.
+
+## Usage
+
+`AppSidebar` is already wired into the admin layout. You do not need to add it to individual pages — it renders once in `src/app/(admin)/layout.tsx` and wraps every child route automatically.
+
+```tsx src/app/(admin)/layout.tsx
+import AppSidebar from "@/layout/AppSidebar";
+import Backdrop from "@/layout/Backdrop";
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen xl:flex">
+      <AppSidebar />
+      <Backdrop />
+      {/* ... */}
+    </div>
+  );
+}
+```
+
+## Sidebar structure
+
+The sidebar is made up of four visual regions:
+
+| Region | Description |
+|---|---|
+| Logo area | Links to `/`. Shows the full logo when expanded, an icon when collapsed. |
+| **Menu** group | Primary nav items: Dashboard, Calendar, User Profile, Forms, Tables, Pages. |
+| **Others** group | Secondary nav items: Charts, UI Elements, Authentication. |
+| Sidebar widget | Promotional card at the bottom, visible only when the sidebar is expanded or hovered. |
+
+## Nav item structure
+
+Nav items are defined as plain TypeScript objects inside `AppSidebar.tsx`. Each item follows the `NavItem` type:
+
+```tsx src/layout/AppSidebar.tsx
+type NavItem = {
+  name: string;
+  icon: React.ReactNode;
+  path?: string;
+  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+};
+```
+
+- Items with a `path` render as a direct `<Link>`.
+- Items with `subItems` render as an accordion button that expands to reveal child links.
+- Sub-items support optional `pro` and `new` badge labels.
+
+### Main nav items
+
+```tsx src/layout/AppSidebar.tsx
+const navItems: NavItem[] = [
+  {
+    icon: <GridIcon />,
+    name: "Dashboard",
+    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "Calendar",
+    path: "/calendar",
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "User Profile",
+    path: "/profile",
+  },
+  {
+    name: "Forms",
+    icon: <ListIcon />,
+    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+  },
+  {
+    name: "Tables",
+    icon: <TableIcon />,
+    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+  },
+  {
+    name: "Pages",
+    icon: <PageIcon />,
+    subItems: [
+      { name: "Blank Page", path: "/blank", pro: false },
+      { name: "404 Error", path: "/error-404", pro: false },
+    ],
+  },
+];
+```
+
+### Others nav items
+
+```tsx src/layout/AppSidebar.tsx
+const othersItems: NavItem[] = [
+  {
+    icon: <PieChartIcon />,
+    name: "Charts",
+    subItems: [
+      { name: "Line Chart", path: "/line-chart", pro: false },
+      { name: "Bar Chart", path: "/bar-chart", pro: false },
+    ],
+  },
+  {
+    icon: <BoxCubeIcon />,
+    name: "UI Elements",
+    subItems: [
+      { name: "Alerts", path: "/alerts", pro: false },
+      { name: "Avatar", path: "/avatars", pro: false },
+      { name: "Badge", path: "/badge", pro: false },
+      { name: "Buttons", path: "/buttons", pro: false },
+      { name: "Images", path: "/images", pro: false },
+      { name: "Videos", path: "/videos", pro: false },
+    ],
+  },
+  {
+    icon: <PlugInIcon />,
+    name: "Authentication",
+    subItems: [
+      { name: "Sign In", path: "/signin", pro: false },
+      { name: "Sign Up", path: "/signup", pro: false },
+    ],
+  },
+];
+```
+
+## Collapse and expand behavior
+
+The sidebar reads four values from `SidebarContext`:
+
+| Value | Type | Description |
+|---|---|---|
+| `isExpanded` | `boolean` | `true` when the user has explicitly pinned the sidebar open. Defaults to `true` on desktop. |
+| `isMobileOpen` | `boolean` | `true` when the mobile drawer is open. |
+| `isHovered` | `boolean` | `true` while the cursor is over the collapsed rail on desktop. |
+| `setIsHovered` | `function` | Called by `onMouseEnter` / `onMouseLeave` on the `<aside>` element. |
+
+The sidebar width is applied with a conditional class:
+
+```tsx src/layout/AppSidebar.tsx
+<aside
+  className={`fixed ... transition-all duration-300 ease-in-out ...
+    ${
+      isExpanded || isMobileOpen
+        ? "w-[290px]"
+        : isHovered
+        ? "w-[290px]"
+        : "w-[90px]"
+    }
+    ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:translate-x-0`}
+  onMouseEnter={() => !isExpanded && setIsHovered(true)}
+  onMouseLeave={() => setIsHovered(false)}
+>
+```
+
+Text labels and chevrons are hidden when the sidebar is collapsed and not hovered:
+
+```tsx
+{(isExpanded || isHovered || isMobileOpen) && (
+  <span className="menu-item-text">{nav.name}</span>
+)}
+```
+
+The `toggleSidebar` function in `SidebarContext` flips `isExpanded`. The header's hamburger button calls `toggleSidebar` on desktop and `toggleMobileSidebar` on mobile.
+
+## Backdrop component
+
+`Backdrop` renders a semi-transparent overlay that covers the page content when the mobile sidebar is open. Tapping it calls `toggleMobileSidebar` to close the drawer.
+
+```tsx src/layout/Backdrop.tsx
+const Backdrop: React.FC = () => {
+  const { isMobileOpen, toggleMobileSidebar } = useSidebar();
+
+  if (!isMobileOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
+      onClick={toggleMobileSidebar}
+    />
+  );
+};
+```
+
+The `z-40` stacking context keeps the backdrop above the page content but below the sidebar (`z-50`).
+
+## SidebarWidget component
+
+`SidebarWidget` is a promotional card shown at the bottom of the scrollable nav area. It is only visible when the sidebar is expanded or hovered — the layout component conditionally renders it:
+
+```tsx src/layout/AppSidebar.tsx
+{isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
+```
+
+The widget itself:
+
+```tsx src/layout/SidebarWidget.tsx
+export default function SidebarWidget() {
+  return (
+    <div className="mx-auto mb-10 w-full max-w-60 rounded-2xl bg-gray-50 px-4 py-5 text-center dark:bg-white/[0.03]">
+      <h3 className="mb-2 font-semibold text-gray-900 dark:text-white">
+        #1 Tailwind CSS Dashboard
+      </h3>
+      <p className="mb-4 text-gray-500 text-theme-sm dark:text-gray-400">
+        Leading Tailwind CSS Admin Template with 400+ UI Component and Pages.
+      </p>
+      <a
+        href="https://tailadmin.com/pricing"
+        target="_blank"
+        rel="nofollow"
+        className="flex items-center justify-center p-3 font-medium text-white rounded-lg bg-brand-500 text-theme-sm hover:bg-brand-600"
+      >
+        Upgrade To Pro
+      </a>
+    </div>
+  );
+}
+```
+
+Replace the contents of this component with your own call-to-action, help links, or any other persistent sidebar content.
+
+## Adding and removing nav items
+
+To customize the navigation, edit the `navItems` and `othersItems` arrays in `src/layout/AppSidebar.tsx`.
+
+<Steps>
+  <Step title="Add a direct link">
+    Add an object with `name`, `icon`, and `path` to place a single link in the sidebar:
+
+    ```tsx
+    {
+      icon: <GridIcon />,
+      name: "Analytics",
+      path: "/analytics",
+    },
+    ```
+  </Step>
+
+  <Step title="Add a group with sub-items">
+    Omit `path` and add `subItems` to create an accordion group:
+
+    ```tsx
+    {
+      icon: <BoxCubeIcon />,
+      name: "Reports",
+      subItems: [
+        { name: "Monthly", path: "/reports/monthly" },
+        { name: "Annual", path: "/reports/annual", new: true },
+      ],
+    },
+    ```
+  </Step>
+
+  <Step title="Remove an item">
+    Delete the corresponding object from the array. The sidebar re-renders automatically.
+  </Step>
+</Steps>
+
+<Note>
+  Icons must be React components. Import them from `src/icons/index` or replace them with any React-compatible icon library such as Heroicons or Lucide.
+</Note>

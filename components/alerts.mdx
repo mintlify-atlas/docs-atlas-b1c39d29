@@ -1,0 +1,134 @@
+---
+title: "Alerts"
+description: "A contextual alert component with four semantic variants, an optional title, a message body, and an optional learn-more link."
+---
+
+## Overview
+
+The `Alert` component displays a bordered, colored notification panel. Four semantic variants — `success`, `error`, `warning`, and `info` — each apply a distinct color scheme and render a matching icon automatically. An optional inline link lets you direct users to additional context.
+
+## Import
+
+```tsx
+import Alert from "@/components/ui/alert/Alert";
+```
+
+## Props
+
+<ParamField path="variant" type="success | error | warning | info" required>
+  Determines the color scheme and icon displayed in the alert.
+</ParamField>
+
+<ParamField path="title" type="string" required>
+  Bold heading text rendered at the top of the alert body.
+</ParamField>
+
+<ParamField path="message" type="string" required>
+  Descriptive text rendered below the title.
+</ParamField>
+
+<ParamField path="showLink" type="boolean" default="false">
+  When `true`, an underlined inline link is appended below the message.
+</ParamField>
+
+<ParamField path="linkHref" type="string" default="#">
+  The `href` for the optional link. Only used when `showLink` is `true`.
+</ParamField>
+
+<ParamField path="linkText" type="string" default="Learn more">
+  The visible label for the optional link.
+</ParamField>
+
+## Variants
+
+### Success
+
+```tsx
+<Alert
+  variant="success"
+  title="Success Message"
+  message="Be cautious when performing this action."
+/>
+```
+
+With a link:
+
+```tsx
+<Alert
+  variant="success"
+  title="Success Message"
+  message="Be cautious when performing this action."
+  showLink={true}
+  linkHref="/"
+  linkText="Learn more"
+/>
+```
+
+### Warning
+
+```tsx
+<Alert
+  variant="warning"
+  title="Warning Message"
+  message="Be cautious when performing this action."
+/>
+```
+
+### Error
+
+```tsx
+<Alert
+  variant="error"
+  title="Error Message"
+  message="Be cautious when performing this action."
+/>
+```
+
+### Info
+
+```tsx
+<Alert
+  variant="info"
+  title="Info Message"
+  message="Be cautious when performing this action."
+/>
+```
+
+## All variants at a glance
+
+```tsx
+<Alert variant="success" title="Success Message" message="Be cautious when performing this action." />
+<Alert variant="warning" title="Warning Message" message="Be cautious when performing this action." />
+<Alert variant="error"   title="Error Message"   message="Be cautious when performing this action." />
+<Alert variant="info"    title="Info Message"    message="Be cautious when performing this action." />
+```
+
+## Color mapping
+
+| Variant | Background | Border | Icon color |
+|---------|-----------|--------|------------|
+| `success` | `bg-success-50` | `border-success-500` | `text-success-500` |
+| `error` | `bg-error-50` | `border-error-500` | `text-error-500` |
+| `warning` | `bg-warning-50` | `border-warning-500` | `text-warning-500` |
+| `info` | `bg-blue-light-50` | `border-blue-light-500` | `text-blue-light-500` |
+
+All variants include a dark-mode counterpart using Tailwind's `dark:` prefix.
+
+## Optional link
+
+Set `showLink` to `true` and provide `linkHref` and `linkText` to render an underlined link below the message. This uses Next.js `<Link>` internally for client-side navigation.
+
+```tsx
+<Alert
+  variant="info"
+  title="New update available"
+  message="A new version of TailAdmin is ready to install."
+  showLink={true}
+  linkHref="/changelog"
+  linkText="View changelog"
+/>
+```
+
+## Source file
+
+`src/components/ui/alert/Alert.tsx`

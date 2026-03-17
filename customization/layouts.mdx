@@ -1,0 +1,254 @@
+---
+title: "Layouts"
+description: "Understand the two layout types in TailAdmin, how the sidebar states work, and how to build new layout variants."
+---
+
+## Layout types
+
+TailAdmin ships with two Next.js route group layouts. Each group applies a different wrapper to its pages without affecting the URL structure.
+
+| Layout | Route group | Use case |
+|---|---|---|
+| Admin layout | `(admin)` | Dashboard and app pages with sidebar + header |
+| Full-width layout | `(full-width-pages)` | Auth pages, error pages, and standalone screens |
+
+## Admin layout
+
+The admin layout lives at `src/app/(admin)/layout.tsx`. It renders the sidebar, a backdrop overlay for mobile, and the main content area. The main content shifts horizontally based on the sidebar's current state.
+
+```tsx src/app/(admin)/layout.tsx
+"use client";
+
+import { useSidebar } from "@/context/SidebarContext";
+import AppHeader from "@/layout/AppHeader";
+import AppSidebar from "@/layout/AppSidebar";
+import Backdrop from "@/layout/Backdrop";
+import React from "react";
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+
+  // Dynamic class for main content margin based on sidebar state
+  const mainContentMargin = isMobileOpen
+    ? "ml-0"
+    : isExpanded || isHovered
+    ? "lg:ml-[290px]"
+    : "lg:ml-[90px]";
+
+  return (
+    <div className="min-h-screen xl:flex">
+      {/* Sidebar and Backdrop */}
+      <AppSidebar />
+      <Backdrop />
+      {/* Main Content Area */}
+      <div
+        className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
+      >
+        {/* Header */}
+        <AppHeader />
+        {/* Page Content */}
+        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+```
+
+### Sidebar collapse states
+
+The `SidebarContext` tracks three independent state flags:
+
+| Flag | Description |
+|---|---|
+| `isExpanded` | Desktop sidebar is pinned open (290px wide) |
+| `isHovered` | Collapsed sidebar is temporarily expanded on mouse-over |
+| `isMobileOpen` | Mobile overlay sidebar is open |
+
+The main content margin is calculated from these flags at render time:
+
+- **Mobile open** — no left margin (`ml-0`); sidebar overlays the content
+- **Expanded or hovered** — 290px left margin on `lg` screens and above (`lg:ml-[290px]`)
+- **Collapsed** — 90px left margin on `lg` screens and above (`lg:ml-[90px]`)
+
+The transition class `transition-all duration-300 ease-in-out` smoothly animates between these states.
+
+### SidebarContext API
+
+The sidebar state is provided by `src/context/SidebarContext.tsx`:
+
+```tsx src/context/SidebarContext.tsx
+type SidebarContextType = {
+  isExpanded: boolean;
+  isMobileOpen: boolean;
+  isHovered: boolean;
+  activeItem: string | null;
+  openSubmenu: string | null;
+  toggleSidebar: () => void;
+  toggleMobileSidebar: () => void;
+  setIsHovered: (isHovered: boolean) => void;
+  setActiveItem: (item: string | null) => void;
+  toggleSubmenu: (item: string) => void;
+};
+```
+
+On screens narrower than 768px (the `md` breakpoint), `isExpanded` is forced to `false` and the mobile overlay is used instead.
+
+## Full-width layout
+
+The full-width layout at `src/app/(full-width-pages)/layout.tsx` is intentionally minimal — it wraps children in a plain `<div>` with no sidebar or header:
+
+```tsx src/app/(full-width-pages)/layout.tsx
+export default function FullWidthPageLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <div>{children}</div>;
+}
+```
+
+This layout is used for authentication screens and error pages, which manage their own internal layout.
+
+## 12-column grid system
+
+All dashboard pages use a 12-column CSS grid. The ecommerce dashboard (`src/app/(admin)/page.tsx`) demonstrates the standard pattern:
+
+```tsx src/app/(admin)/page.tsx
+export default function Ecommerce() {
+  return (
+    <div className="grid grid-cols-12 gap-4 md:gap-6">
+      <div className="col-span-12 space-y-6 xl:col-span-7">
+        <EcommerceMetrics />
+        <MonthlySalesChart />
+      </div>
+
+      <div className="col-span-12 xl:col-span-5">
+        <MonthlyTarget />
+      </div>
+
+      <div className="col-span-12">
+        <StatisticsChart />
+      </div>
+
+      <div className="col-span-12 xl:col-span-5">
+        <DemographicCard />
+      </div>
+
+      <div className="col-span-12 xl:col-span-7">
+        <RecentOrders />
+      </div>
+    </div>
+  );
+}
+```
+
+### Grid patterns
+
+| Classes | Behavior |
+|---|---|
+| `col-span-12` | Full width on all screen sizes |
+| `col-span-12 xl:col-span-7` | Full width below `xl`, 7/12 columns at `xl`+ |
+| `col-span-12 xl:col-span-5` | Full width below `xl`, 5/12 columns at `xl`+ |
+| `gap-4 md:gap-6` | 16px gap below `md`, 24px gap at `md`+ |
+
+## Breakpoints
+
+TailAdmin defines a custom breakpoint set that replaces Tailwind's defaults:
+
+```css src/app/globals.css
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-2xsm: 375px;
+  --breakpoint-xsm:  425px;
+  --breakpoint-sm:   640px;
+  --breakpoint-md:   768px;
+  --breakpoint-lg:   1024px;
+  --breakpoint-xl:   1280px;
+  --breakpoint-2xl:  1536px;
+  --breakpoint-3xl:  2000px;
+}
+```
+
+The `--breakpoint-*: initial` line clears all of Tailwind's built-in breakpoints, so only the values above are active. Use the standard `sm:`, `md:`, `lg:`, `xl:`, and `2xl:` prefixes in your classes — they map to the custom values above.
+
+## Creating a new layout variant
+
+To add a new route group with its own layout (for example, a settings area with a secondary sidebar):
+
+<Steps>
+  <Step title="Create a new route group">
+    Create a folder named `(settings)` inside `src/app/`. The parentheses make it a route group — it does not appear in the URL.
+
+    ```
+    src/app/
+    ├── (admin)/
+    ├── (full-width-pages)/
+    └── (settings)/         ← new group
+        ├── layout.tsx
+        └── settings/
+            └── page.tsx
+    ```
+  </Step>
+  <Step title="Create the layout file">
+    Add a `layout.tsx` inside your new route group. You can reuse the existing sidebar and header components:
+
+    ```tsx src/app/(settings)/layout.tsx
+    "use client";
+
+    import AppHeader from "@/layout/AppHeader";
+    import AppSidebar from "@/layout/AppSidebar";
+    import Backdrop from "@/layout/Backdrop";
+    import { useSidebar } from "@/context/SidebarContext";
+
+    export default function SettingsLayout({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) {
+      const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+
+      const mainContentMargin = isMobileOpen
+        ? "ml-0"
+        : isExpanded || isHovered
+        ? "lg:ml-[290px]"
+        : "lg:ml-[90px]";
+
+      return (
+        <div className="min-h-screen xl:flex">
+          <AppSidebar />
+          <Backdrop />
+          <div
+            className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
+          >
+            <AppHeader />
+            <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+              {children}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    ```
+  </Step>
+  <Step title="Add pages to the group">
+    Create page files inside your route group. They inherit the layout automatically:
+
+    ```tsx src/app/(settings)/settings/page.tsx
+    export default function SettingsPage() {
+      return (
+        <div className="grid grid-cols-12 gap-4 md:gap-6">
+          <div className="col-span-12">
+            <h1 className="text-title-sm font-semibold text-gray-800 dark:text-white/90">
+              Settings
+            </h1>
+          </div>
+        </div>
+      );
+    }
+    ```
+  </Step>
+</Steps>
